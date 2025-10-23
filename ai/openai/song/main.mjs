@@ -1,10 +1,12 @@
 // console.log('hello world!');
 import OpenAI from 'openai';
+import dotenv from 'dotenv';
+dotenv.config();  //.env 文件中的配置添加到环境变量
 // llm client 实例化
 const client = new OpenAI(
     // 算力，电力，凭据
     {
-        apiKey: 'sk-J9GyQOIntHJ9B2PRn7Qj5xjMeIG2QlPYA0IZBNcizysxSHmn',
+        apiKey: process.env.OpenAI_API_KEY,
         // baseURL: 'https://api.openai.com/v1',
         baseURL: 'https://api.302.ai/v1',
 
