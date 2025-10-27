@@ -1,16 +1,44 @@
-# [cf2121E] [Sponsor of Your Problems](https://codeforces.com/contest/2121/problem/E)
+# [cf1929C] [Sasha and the Casino](https://codeforces.com/problemset/problem/1929/C)
 ## 题目描述 
 
-> For two integers $a$ and $b$, we define $f(a, b)$ as the number of positions in the decimal representation of the numbers $a$ and $b$ where their digits are the same. For example, $f(12, 21) = 0$, $f(31, 37) = 1$, $f(19891, 18981) = 2$, $f(54321, 24361) = 3$.
+> Sasha decided to give his girlfriend the best handbag, but unfortunately for Sasha, it is very expensive. Therefore, Sasha wants to earn it. After looking at earning tips on the internet, he decided to go to the casino.
 
-> You are given two integers $l$ and $r$ of the **same** length in decimal representation. Consider all integers $l \leq x \leq r$. Your task is to find the minimum value of $f(l, x) + f(x, r)$.
+Sasha knows that the casino operates under the following rules. If Sasha places a bet of $y$ coins (where $y$ is a positive integer), then in case of winning, he will receive $y \cdot k$ coins (i.e., his number of coins will increase by $y \cdot (k - 1)$). And in case of losing, he will lose the entire bet amount (i.e., his number of coins will decrease by $y$).
+
+Note that the bet amount must always be a positive ($> 0$) integer and cannot exceed Sasha's current number of coins.
+
+Sasha also knows that there is a promotion at the casino: he cannot lose more than $x$ times in a row.
+
+Initially, Sasha has $a$ coins. He wonders whether he can place bets such that he is guaranteed to win any number of coins. In other words, is it true that for any integer $n$, Sasha can make bets so that for any outcome that does not contradict the rules described above, at some moment of time he will have at least $n$ coins.
+
 
 ---
 ## 题目大意
 
-> 对于两个整数 $a$ 和 $b$ ，我们将 $f(a, b)$ 定义为数字 $a$ 和 $b$ 的十进制表示中数字相同的位置数。例如， $f(12, 21) = 0$ 、 $f(31, 37) = 1$ 、 $f(19891, 18981) = 2$ 、 $f(54321, 24361) = 3$ 。
+> Sasha 想给女朋友买一个最好的手提包，但不幸的是，它非常昂贵。  
+所以 Sasha 决定去赌场赚钱。
 
-> 给定两个十进制表示长度**相同**的整数 $l$ 和 $r$ 。考虑所有整数 $l \leq x \leq r$ 。您的任务是找到 $f(l, x) + f(x, r)$ 的最小值。
+赌场的规则如下：
+
+-   如果 Sasha 下了一个 **y** 枚硬币的赌注（其中 y 是一个正整数），  
+    那么：
+
+    -   如果他 **赢了**，他会得到 **y × k** 枚硬币  
+        （也就是净赚了 `y × (k - 1)` 枚硬币）。
+    -   如果他 **输了**，他会失去 **y** 枚硬币。
+
+另外有两个限制：
+
+-   赌注金额必须是一个 **正整数**，且不能超过 Sasha 当前拥有的硬币数。
+-   赌场有一个「活动」：Sasha 最多只能 **连续输 x 次**。  
+    （也就是说，不可能出现连续输超过 x 次的情况。）
+
+最开始，Sasha 有 **a** 枚硬币。
+现在他在想：  
+能否通过某种下注策略，**保证自己最终可以赢到任意多的钱**？
+换句话说，是否存在一种下注方式，使得**无论赌场的输赢结果如何**（只要不违反「最多连续输 x 次」这个规则），  
+他都能在某个时刻至少拥有任意指定的硬币数量 n？
+
 
 
 
@@ -27,32 +55,19 @@
 ---
 
 ## 我的思路
-**贪心**
+**数学/贪心最坏的情况**
+
+##
+
+> 只要`在连续输钱`的情况下我们的`本金`不会是`负`的，那么我们就可以无限得钱。假如我们`当前的本金`为 `y` ，我们设我们累计输钱为 `total` ，那么如果再连续输掉 `x + 1` 次后 `total > a` 说明我们最初的本金不够我们输那么则输出`NO`，否则`YES`。那么我们每轮投多少钱呢。如果我们输掉一些钱后，我们要想得到无限多的钱，那么 `y * (k - 1) > total + 1` 即我们赢得钱一定要比我们输掉的多（在我们赢钱的情况下，贪心，做最坏的打算）。那么可以得到每次我们投入的本金即为 $y = total/(k - 1) + 1$ 。
 
 
-> 尝试手玩一些数据：
-$l = 1234$
-$r = 1400$
-答案是多少？
-从百位数开始可以填 $3$ ，后面随便填，一定可以不一样，所以答案是 $2$ （**千位数必须填 1**）。
-
-$l = 129989$
-$r = 130000$
-答案是多少？
-$299$ 和 $300$ 这段必须和 $l, r$ 其中一个数**一样**，后面可以填 9，然后就可以随便填。
-答案是 1 的长度加上 1299 的长度 = 1 + 4 = 5。
-
-特别地，如果 `l = r` ，那么答案为 `len(l) * 2` 。
-否则会进入上面两种情况之一。
-
-时间复杂度： $O(log r)$ ，一次遍历。
-
-
+##
 ---
 
 ## 时间复杂度
 
-$O(log r)$
+$O()$
 
 ---
 
@@ -88,25 +103,20 @@ type (
 
 func solve(in io.Reader, out io.Writer) {
 	var T int
-o:
 	for Fscan(in, &T); T > 0; T-- {
-		var l, r []byte
-		Fscan(in, &l, &r)
-		for i, d := range l {
-			if int(d) == int(r[i]) {
-				continue
+		var k, x, a int
+		Fscan(in, &k, &x, &a)
+		total := 0
+		for range x + 1 {
+			cur := (total)/(k-1) + 1
+			total += cur
+			if total > a {
+				Fprintln(out, "NO")
+				goto next
 			}
-			if int(r[i])-int(d) > 1 {
-				Fprintln(out, i*2)
-			} else {
-				j := i + 1
-				for ; j < len(l) && l[j] == '9' && r[j] == '0'; j++ {
-				}
-				Fprintln(out, i+j)
-			}
-			continue o
 		}
-		Fprintln(out, len(l)*2)
+		Fprintln(out, "YES")
+	next:
 	}
 }
 
@@ -141,6 +151,7 @@ func min64(x, y i64) i64 {
 func main() {
 	solve(bufio.NewReader(os.Stdin), os.Stdout)
 }
+
 ```
 ---
 
