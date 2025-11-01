@@ -1,68 +1,46 @@
-# [cf1929C] [Sasha and the Casino](https://codeforces.com/problemset/problem/1929/C)
-## 题目描述 
+# [cf2110C] [Racing](https://codeforces.com/problemset/problem/2110/C)
 
-> Sasha decided to give his girlfriend the best handbag, but unfortunately for Sasha, it is very expensive. Therefore, Sasha wants to earn it. After looking at earning tips on the internet, he decided to go to the casino.
+## 题目描述
+In 2077, a sport called hobby-droning is gaining popularity among robots.
 
-Sasha knows that the casino operates under the following rules. If Sasha places a bet of $y$ coins (where $y$ is a positive integer), then in case of winning, he will receive $y \cdot k$ coins (i.e., his number of coins will increase by $y \cdot (k - 1)$). And in case of losing, he will lose the entire bet amount (i.e., his number of coins will decrease by $y$).
+You already have a drone, and you want to win. For this, your drone needs to fly through a course with $n$ obstacles.
 
-Note that the bet amount must always be a positive ($> 0$) integer and cannot exceed Sasha's current number of coins.
+The $i$\-th obstacle is defined by two numbers $l_i, r_i$. Let the height of your drone at the $i$\-th obstacle be $h_i$. Then the drone passes through this obstacle if $l_i \le h_i \le r_i$. Initially, the drone is on the ground, meaning $h_0 = 0$.
 
-Sasha also knows that there is a promotion at the casino: he cannot lose more than $x$ times in a row.
-
-Initially, Sasha has $a$ coins. He wonders whether he can place bets such that he is guaranteed to win any number of coins. In other words, is it true that for any integer $n$, Sasha can make bets so that for any outcome that does not contradict the rules described above, at some moment of time he will have at least $n$ coins.
+The flight program for the drone is represented by an array $d_1, d_2, \ldots, d_n$, where $h_{i} - h_{i-1} = d_i$, and $0 \leq d_i \leq 1$. This means that your drone either does not change height between obstacles or rises by $1$. You already have a flight program, but some $d_i$ in it are unknown and marked as $-1$. Replace the unknown $d_i$ with numbers $0$ and $1$ to create a flight program that passes through the entire obstacle course, or report that it is impossible.
 
 
 ---
 ## 题目大意
 
-> Sasha 想给女朋友买一个最好的手提包，但不幸的是，它非常昂贵。  
-所以 Sasha 决定去赌场赚钱。
+$2077$ 年，一项名为业余爱好无人机的运动在机器人中越来越受欢迎。
 
-赌场的规则如下：
+您已经拥有一架无人机，并且您想获胜。为此，您的无人机需要飞过有 $n$ 障碍物的航线。
 
--   如果 Sasha 下了一个 **y** 枚硬币的赌注（其中 y 是一个正整数），  
-    那么：
+第 $i$ 个障碍物由两个数字 $l_i, r_i$ 定义。令无人机在第 $i$ 个障碍物处的高度为 $h_i$ 。如果 $l_i <= h_i <= r_i$ ，那么无人机就会穿过这个障碍物。最初，无人机在地面上，即 $h_0 = 0$ 。
 
-    -   如果他 **赢了**，他会得到 **y × k** 枚硬币  
-        （也就是净赚了 `y × (k - 1)` 枚硬币）。
-    -   如果他 **输了**，他会失去 **y** 枚硬币。
-
-另外有两个限制：
-
--   赌注金额必须是一个 **正整数**，且不能超过 Sasha 当前拥有的硬币数。
--   赌场有一个「活动」：Sasha 最多只能 **连续输 x 次**。  
-    （也就是说，不可能出现连续输超过 x 次的情况。）
-
-最开始，Sasha 有 **a** 枚硬币。
-现在他在想：  
-能否通过某种下注策略，**保证自己最终可以赢到任意多的钱**？
-换句话说，是否存在一种下注方式，使得**无论赌场的输赢结果如何**（只要不违反「最多连续输 x 次」这个规则），  
-他都能在某个时刻至少拥有任意指定的硬币数量 n？
-
+无人机的飞行程序由数组 $d_1, d_2, ..., d_n$ 表示，其中 $h_i - h_{i-1} = d_i$ 和 $0 <= d_i <= 1$ 。这意味着您的无人机不会改变障碍物之间的高度，或者会上升 $1$ 。您已有一个航班计划，但其中的某些 $d_i$ 未知并标记为 $-1$ 。将未知的 $d_i$ 替换为数字 $0$ 和 $1$ ，以创建穿过整个障碍路线的飞行程序，或者报告这是不可能的。
 
 
 
 ## 输入
 
-> 
-
+>
 
 
 ## 输出
 
-> 
+>
 
 ---
 
 ## 我的思路
-**数学/贪心最坏的情况**
+**反悔贪心**
 
-##
+> 我们用一个 $sig$ 数组来标记 $d_i = -1$ 的位置，后续我们就可以根据情况来修改标记过的位置。另外我们再用一个变量 $cursum$ 来表示来到 i 位置累计的高度（不算上 $d[i] = -1$）
 
-> 只要`在连续输钱`的情况下我们的`本金`不会是`负`的，那么我们就可以无限得钱。假如我们`当前的本金`为 `y` ，我们设我们累计输钱为 `total` ，那么如果再连续输掉 `x + 1` 次后 `total > a` 说明我们最初的本金不够我们输那么则输出`NO`，否则`YES`。那么我们每轮投多少钱呢。如果我们输掉一些钱后，我们要想得到无限多的钱，那么 `y * (k - 1) > total + 1` 即我们赢得钱一定要比我们输掉的多（在我们赢钱的情况下，贪心，做最坏的打算）。那么可以得到每次我们投入的本金即为 $y = total/(k - 1) + 1$ 。
+> 如果我们来到的 `i` 位置， `cursum < l[i]` ，并且我们来到 `i` 位置时标记的可以修改的位置为空说明我们**没办法提高高度**了，那么直接输出 `-1` 。否则我们随意拿来标记的最后一个来将其改成 `1` **提高高度**。如果 `cursum+len(sig) > r[i]` 表示我之前标记的所有位置都**假设改成** `1` 超出了 $r[i]$ ，如果可以修改的位置为空说明我们**没办法降低高度**，直接输出 `-1` 。否则我们将标记的位置改成 `0` 来**降低高度**，
 
-
-##
 ---
 
 ## 时间复杂度
@@ -104,23 +82,69 @@ type (
 func solve(in io.Reader, out io.Writer) {
 	var T int
 	for Fscan(in, &T); T > 0; T-- {
-		var k, x, a int
-		Fscan(in, &k, &x, &a)
-		total := 0
-		for range x + 1 {
-			cur := (total)/(k-1) + 1
-			total += cur
-			if total > a {
-				Fprintln(out, "NO")
-				goto next
+		var n int
+		Fscan(in, &n)
+		d := make([]int, n)
+		for i := range d {
+			Fscan(in, &d[i])
+		}
+		l := make([]int, n)
+		r := make([]int, n)
+		for i := 0; i < n; i++ {
+			Fscan(in, &l[i], &r[i])
+		}
+		cursum := 0
+		sig := []int{}
+
+		for i := 0; i < n; i++ {
+			if d[i] == -1 {
+				sig = append(sig, i)
+			} else {
+				cursum += d[i]
+			}
+
+			for cursum < l[i] {
+				if len(sig) == 0 {
+					Fprintln(out, -1)
+					goto next
+				}
+				pos := sig[len(sig)-1]
+				sig = sig[:len(sig)-1]
+				d[pos] = 1
+				cursum++
+			}
+			for cursum+len(sig) > r[i] {
+				if len(sig) == 0 {
+					Fprintln(out, -1)
+					goto next
+				}
+				pos := sig[len(sig)-1]
+				sig = sig[:len(sig)-1]
+				d[pos] = 0
 			}
 		}
-		Fprintln(out, "YES")
+
+		for i := range d {
+			if d[i] < 0 {
+				d[i] = 0
+			}
+		}
+		for _, x := range d {
+			Fprint(out, x, " ")
+		}
+		Fprintln(out)
 	next:
 	}
 }
 
 func abs(x int) int {
+	if x < 0 {
+		return -x
+	}
+	return x
+}
+
+func abs64(x i64) i64 {
 	if x < 0 {
 		return -x
 	}
