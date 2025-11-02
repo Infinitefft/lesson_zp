@@ -1,26 +1,42 @@
-# [cf2110C] [Racing](https://codeforces.com/problemset/problem/2110/C)
+# [cf1790D] [Matryoshkas](https://codeforces.com/problemset/problem/1790/D)
 
 ## 题目描述
-In 2077, a sport called hobby-droning is gaining popularity among robots.
+Matryoshka is a wooden toy in the form of a painted doll, inside which you can put a similar doll of a smaller size.
 
-You already have a drone, and you want to win. For this, your drone needs to fly through a course with $n$ obstacles.
+A set of nesting dolls contains one or more nesting dolls, their sizes are consecutive positive integers. Thus, a set of nesting dolls is described by two numbers: $s$ — the size of a smallest nesting doll in a set and $m$ — the number of dolls in a set. In other words, the set contains sizes of $s, s + 1, \dots, s + m - 1$ for some integer $s$ and $m$ ($s,m > 0$).
 
-The $i$\-th obstacle is defined by two numbers $l_i, r_i$. Let the height of your drone at the $i$\-th obstacle be $h_i$. Then the drone passes through this obstacle if $l_i \le h_i \le r_i$. Initially, the drone is on the ground, meaning $h_0 = 0$.
+You had one or more sets of nesting dolls. Recently, you found that someone mixed all your sets in one and recorded a sequence of doll sizes — integers $a_1, a_2, \dots, a_n$.
 
-The flight program for the drone is represented by an array $d_1, d_2, \ldots, d_n$, where $h_{i} - h_{i-1} = d_i$, and $0 \leq d_i \leq 1$. This means that your drone either does not change height between obstacles or rises by $1$. You already have a flight program, but some $d_i$ in it are unknown and marked as $-1$. Replace the unknown $d_i$ with numbers $0$ and $1$ to create a flight program that passes through the entire obstacle course, or report that it is impossible.
+You do not remember how many sets you had, so you want to find the **minimum** number of sets that you could initially have.
 
+For example, if a given sequence is $a=[2, 2, 3, 4, 3, 1]$. Initially, there could be $2$ sets:
+
+-   the first set consisting of $4$ nesting dolls with sizes $[1, 2, 3, 4]$;
+-   a second set consisting of $2$ nesting dolls with sizes $[2, 3]$.
+
+According to a given sequence of sizes of nesting dolls $a_1, a_2, \dots, a_n$, determine the minimum number of nesting dolls that can make this sequence.
+
+Each set is completely used, so all its nesting dolls are used. Each element of a given sequence must correspond to exactly one doll from some set.
 
 ---
 ## 题目大意
 
-$2077$ 年，一项名为业余爱好无人机的运动在机器人中越来越受欢迎。
+俄罗斯套娃是一种彩绘娃娃形式的木制玩具，里面可以放一个较小尺寸的类似娃娃。
 
-您已经拥有一架无人机，并且您想获胜。为此，您的无人机需要飞过有 $n$ 障碍物的航线。
+一套套娃包含一个或多个套娃，它们的大小为连续的正整数。因此，一组嵌套娃娃由两个数字描述： $s$ — 一组中最小嵌套娃娃的尺寸； $m$ — 一组中娃娃的数量。换句话说，该集合包含某个整数 $s$ 和 $m$ ( $s,m > 0$ ) 的大小 $s, s + 1, ..., s + m - 1$ 。
 
-第 $i$ 个障碍物由两个数字 $l_i, r_i$ 定义。令无人机在第 $i$ 个障碍物处的高度为 $h_i$ 。如果 $l_i <= h_i <= r_i$ ，那么无人机就会穿过这个障碍物。最初，无人机在地面上，即 $h_0 = 0$ 。
+您有一套或多套嵌套娃娃。最近，您发现有人将您的所有套装混合在一起，并记录了一系列娃娃尺寸 - 整数 $a_1, a_2,..., a_n$ 。
 
-无人机的飞行程序由数组 $d_1, d_2, ..., d_n$ 表示，其中 $h_i - h_{i-1} = d_i$ 和 $0 <= d_i <= 1$ 。这意味着您的无人机不会改变障碍物之间的高度，或者会上升 $1$ 。您已有一个航班计划，但其中的某些 $d_i$ 未知并标记为 $-1$ 。将未知的 $d_i$ 替换为数字 $0$ 和 $1$ ，以创建穿过整个障碍路线的飞行程序，或者报告这是不可能的。
+您不记得自己有多少组，因此您想找到最初可以拥有的**最小**组数。
 
+例如，如果给定序列是 $a=[2, 2, 3, 4, 3, 1]$ 。最初，可能有 $2$ 组：
+
+- 第一组由 $4$ 个尺寸为 $[1, 2, 3, 4]$ 的嵌套娃娃组成；
+- 第二组由 $2$ 嵌套娃娃组成，尺寸为 $[2, 3]$ 。
+
+根据给定的嵌套娃娃尺寸序列 $a_1, a_2, ..., a_n$ ，确定可以组成该序列的最小嵌套娃娃数量。
+
+每套都已完全使用，因此其所有嵌套娃娃均已使用。给定序列的每个元素必须恰好对应于某个集合中的一个玩偶。
 
 
 ## 输入
@@ -35,11 +51,13 @@ $2077$ 年，一项名为业余爱好无人机的运动在机器人中越来越�
 ---
 
 ## 我的思路
-**反悔贪心**
+**哈希表/贪心**
 
-> 我们用一个 $sig$ 数组来标记 $d_i = -1$ 的位置，后续我们就可以根据情况来修改标记过的位置。另外我们再用一个变量 $cursum$ 来表示来到 i 位置累计的高度（不算上 $d[i] = -1$）
+> 题目意思就是找一个严格递增的子数组，最少可以分成几个。
 
-> 如果我们来到的 `i` 位置， `cursum < l[i]` ，并且我们来到 `i` 位置时标记的可以修改的位置为空说明我们**没办法提高高度**了，那么直接输出 `-1` 。否则我们随意拿来标记的最后一个来将其改成 `1` **提高高度**。如果 `cursum+len(sig) > r[i]` 表示我之前标记的所有位置都**假设改成** `1` 超出了 $r[i]$ ，如果可以修改的位置为空说明我们**没办法降低高度**，直接输出 `-1` 。否则我们将标记的位置改成 `0` 来**降低高度**，
+> 我们用一个哈希表来统计每个数字出现的次数， $C++$ 哈希表会**自动排序**（按照数组大小从小到大排序），$Go$ 要转为一个数组来排序。我们用 `last` 来表示**上一个数**， `pre` 表示**上一个数的`个数`** 。
+
+> 如果来到当前位置**不能和上个数连续**（ $last + 1 != x$ ）那么 $pre$ 就是 $0$ 。统计答案 `ans = max(0, c - pre)` 当前数字`个数`减去 `pre` 。如果当前数个数**比前一个小**，那么 $c - pre < 0$ 就是说我当前的数一定会`包含在`**前一个数组成的序列中**，那么**答案就不需要加**；如果 $c - pre > 0$ 说明**当前数会`溢出`**必须得**形成一个新的子序列**，新的子序列长度就是 `c - pre` （因为是**严格递增子序列**，所以一定必须新增 `c-pre` ）。
 
 ---
 
@@ -65,6 +83,7 @@ import (
 	. "fmt"
 	"io"
 	"os"
+	"sort"
 )
 
 const inf = 0x3f3f3f3f
@@ -84,56 +103,28 @@ func solve(in io.Reader, out io.Writer) {
 	for Fscan(in, &T); T > 0; T-- {
 		var n int
 		Fscan(in, &n)
-		d := make([]int, n)
-		for i := range d {
-			Fscan(in, &d[i])
+		var v int
+		cnt := map[int]int{}
+		for range n {
+			Fscan(in, &v)
+			cnt[v]++
 		}
-		l := make([]int, n)
-		r := make([]int, n)
-		for i := 0; i < n; i++ {
-			Fscan(in, &l[i], &r[i])
+		keys := make([]int, 0, len(cnt))
+		for k := range cnt {
+			keys = append(keys, k)
 		}
-		cursum := 0
-		sig := []int{}
-
-		for i := 0; i < n; i++ {
-			if d[i] == -1 {
-				sig = append(sig, i)
-			} else {
-				cursum += d[i]
+		last := -1
+		ans := 0
+		pre := 0
+		sort.Ints(keys)
+		for _, x := range keys {
+			if last+1 != x {
+				pre = 0
 			}
-
-			for cursum < l[i] {
-				if len(sig) == 0 {
-					Fprintln(out, -1)
-					goto next
-				}
-				pos := sig[len(sig)-1]
-				sig = sig[:len(sig)-1]
-				d[pos] = 1
-				cursum++
-			}
-			for cursum+len(sig) > r[i] {
-				if len(sig) == 0 {
-					Fprintln(out, -1)
-					goto next
-				}
-				pos := sig[len(sig)-1]
-				sig = sig[:len(sig)-1]
-				d[pos] = 0
-			}
+			ans += max(0, cnt[x]-pre)
+			last, pre = x, cnt[x]
 		}
-
-		for i := range d {
-			if d[i] < 0 {
-				d[i] = 0
-			}
-		}
-		for _, x := range d {
-			Fprint(out, x, " ")
-		}
-		Fprintln(out)
-	next:
+		Fprintln(out, ans)
 	}
 }
 
@@ -182,6 +173,42 @@ func main() {
 ## C++ 代码
 
 ```C++
+#include <bits/stdc++.h>
+using namespace std;
+using ll = long long;
+
+void solve() {
+    int n;
+    cin >> n;
+    int v;
+    map<int, int> cnt;
+    for (int i = 0; i < n; i++) {
+        cin >> v;
+        cnt[v]++;
+    }
+    int last = -1;
+    int ans = 0;
+    int pre = 0;
+    for (auto [x, c] : cnt) {
+        if (last + 1 != x) {
+            pre = 0;
+        }
+        ans += max(0, c-pre);
+        last = x, pre = c;
+    }
+    cout << ans << endl;
+}
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int t;
+    cin >> t;
+    while (t--) solve();
+
+    return 0;
+}
 ```
 ---
 ## Python 代码

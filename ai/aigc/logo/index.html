@@ -14,24 +14,79 @@
         <!-- 一行 -->
         <div class="row">
             <div class="col-md-6">
-                <form name="appForm">
+                <form name="appForm" action="http://www.baidu.com">
                     <div class="form-group">
                         <label for="titleInput">Bot名称：</label>
                         <input placeholder="请输入名称" id="titleInput" name="title" type="text" required
                             class="form-control">
                     </div>
-                    <div class="form-group"></div>
-                    <label for="descInput">Bot描述：</label>
-                    <textarea class="form-control" id="descInput" rows="3"></textarea>
+                    <div class="form-group">
+                        <label for="descInput">Bot描述：</label>
+                        <textarea name="decs" placeholder="请输入描述" class="form-control" id="descInput"
+                            rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-default btn-primary" id="submitBtn">生成图标</button>
+                    </div>
+                </form>
             </div>
-            <button
-            class="btn btn-delfault ntn-pairmary"
-            id="submitBtn">生成图标</button>
-            </form>
         </div>
+        <!-- DOM 动态插入 log appendchild -->
+        <div class="row" id="logo"></div>
     </div>
-    <div class="row"></div>
-    </div>
+
+    <script>
+        // form 可以用name查询
+        // document 里会自动地将表单作为集合处理
+        const oForm = document.forms["appForm"];
+        // console.log(oForm);
+        // 事件处理函数
+        oForm.addEventListener("submit", function (e) {
+            // 事件处理函数
+            e.preventDefault();
+            // js this 可滑头了，72变
+            // 事件处理函数，this 指向当前事件的目标元素
+            // js 一周开发出来的语言
+            console.log(this);
+            const appName = this["title"].value;
+            console.log(appName);
+            const appDesc = this["decs"].value;
+            // prompt 
+            const prompt = `
+            你是一个互联网大厂的设计师，需要设计一个移动应用的log。
+            应用名称为${appName}，
+            描述为${appDesc}。
+            设计一个高端、大气、上档次的logo。
+            请确保设计方案适用于移动应用图标(App Icon)。
+            `
+            
+            fetch('https://api.agicto.cn/v1/images/generations', {
+            method: 'POST',
+            headers: {
+                'Authorization': 'Bearer sk-ZVFqTD38kaMhveuyEx5RWXNu4xJIeqTASwc8ZYOkdhlxbAgj',
+                'Content-Type': 'application/json'
+            },
+            body:JSON.stringify({
+                model: "dall-e-3",
+                prompt,
+                n: 1,
+                size: "1024x1024"
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data);
+            const img = document.createElement('img');
+            img.src = data.data[0].url;
+            img.onload = function() {
+                document.getElementById('logo').appendChild(img);
+            }
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+        });
+        })
+    </script>
 </body>
 
 </html>
