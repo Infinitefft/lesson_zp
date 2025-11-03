@@ -1,42 +1,33 @@
-# [cf1790D] [Matryoshkas](https://codeforces.com/problemset/problem/1790/D)
+# [cf1907D] [Jumping Through Segments](https://codeforces.com/problemset/problem/1907/D)
 
 ## 题目描述
-Matryoshka is a wooden toy in the form of a painted doll, inside which you can put a similar doll of a smaller size.
+Polycarp is designing a level for a game. The level consists of $n$ segments on the number line, where the $i$\-th segment starts at the point with coordinate $l_i$ and ends at the point with coordinate $r_i$.
 
-A set of nesting dolls contains one or more nesting dolls, their sizes are consecutive positive integers. Thus, a set of nesting dolls is described by two numbers: $s$ — the size of a smallest nesting doll in a set and $m$ — the number of dolls in a set. In other words, the set contains sizes of $s, s + 1, \dots, s + m - 1$ for some integer $s$ and $m$ ($s,m > 0$).
+The player starts the level at the point with coordinate $0$. In one move, they can move to any point that is within a distance of no more than $k$. After their $i$\-th move, the player must land within the $i$\-th segment, that is, at a coordinate $x$ such that $l_i \le x \le r_i$. This means:
 
-You had one or more sets of nesting dolls. Recently, you found that someone mixed all your sets in one and recorded a sequence of doll sizes — integers $a_1, a_2, \dots, a_n$.
+-   After the first move, they must be inside the first segment (from $l_1$ to $r_1$);
+-   After the second move, they must be inside the second segment (from $l_2$ to $r_2$);
+-   ...
+-   After the $n$\-th move, they must be inside the $n$\-th segment (from $l_n$ to $r_n$).
 
-You do not remember how many sets you had, so you want to find the **minimum** number of sets that you could initially have.
+The level is considered completed if the player reaches the $n$\-th segment, following the rules described above. After some thought, Polycarp realized that it is impossible to complete the level with some values of $k$.
 
-For example, if a given sequence is $a=[2, 2, 3, 4, 3, 1]$. Initially, there could be $2$ sets:
-
--   the first set consisting of $4$ nesting dolls with sizes $[1, 2, 3, 4]$;
--   a second set consisting of $2$ nesting dolls with sizes $[2, 3]$.
-
-According to a given sequence of sizes of nesting dolls $a_1, a_2, \dots, a_n$, determine the minimum number of nesting dolls that can make this sequence.
-
-Each set is completely used, so all its nesting dolls are used. Each element of a given sequence must correspond to exactly one doll from some set.
+Polycarp does not want the level to be too easy, so he asks you to determine the minimum integer $k$ with which it is possible to complete the level.
 
 ---
 ## 题目大意
+$Polycarp$ 正在为游戏设计一个关卡。该级别由数轴上的 $n$ 段组成，其中第 $i$ 段从坐标为 $l_i$ 的点开始，到坐标为 $r_i$ 的点结束。
 
-俄罗斯套娃是一种彩绘娃娃形式的木制玩具，里面可以放一个较小尺寸的类似娃娃。
+玩家从坐标为 $0$ 的点开始关卡。一次移动，他们可以移动到距离不超过 $k$ 内的任何点。在第 $i$ \-次移动之后，玩家必须降落在第 $i$ \-th 段内，即在坐标 $x$ 处，使得 $l_i <= r_i$ 。这意味着：
 
-一套套娃包含一个或多个套娃，它们的大小为连续的正整数。因此，一组嵌套娃娃由两个数字描述： $s$ — 一组中最小嵌套娃娃的尺寸； $m$ — 一组中娃娃的数量。换句话说，该集合包含某个整数 $s$ 和 $m$ ( $s,m > 0$ ) 的大小 $s, s + 1, ..., s + m - 1$ 。
+- 第一次移动后，它们必须位于第一段内（从 $l_1$ 到 $r_1$ ）；
+- 第二次移动后，它们必须位于第二段内（从 $l_2$ 到 $r_2$ ）；
+- $...$
+- 第 $n$ 个移动之后，它们必须位于第 $n$ 个段内（从 $l_n$ 到 $r_n$ ）。
 
-您有一套或多套嵌套娃娃。最近，您发现有人将您的所有套装混合在一起，并记录了一系列娃娃尺寸 - 整数 $a_1, a_2,..., a_n$ 。
+如果玩家按照上述规则到达第 $n$ 段，则认为该关卡已完成。经过一番思考，$Polycarp$ 意识到使用 $k$ 的某些值是不可能完成关卡的。
 
-您不记得自己有多少组，因此您想找到最初可以拥有的**最小**组数。
-
-例如，如果给定序列是 $a=[2, 2, 3, 4, 3, 1]$ 。最初，可能有 $2$ 组：
-
-- 第一组由 $4$ 个尺寸为 $[1, 2, 3, 4]$ 的嵌套娃娃组成；
-- 第二组由 $2$ 嵌套娃娃组成，尺寸为 $[2, 3]$ 。
-
-根据给定的嵌套娃娃尺寸序列 $a_1, a_2, ..., a_n$ ，确定可以组成该序列的最小嵌套娃娃数量。
-
-每套都已完全使用，因此其所有嵌套娃娃均已使用。给定序列的每个元素必须恰好对应于某个集合中的一个玩偶。
+$Polycarp$ 不希望关卡太简单，因此他要求您确定可以完成该关卡的最小整数 $k$ 。
 
 
 ## 输入
@@ -51,13 +42,11 @@ Each set is completely used, so all its nesting dolls are used. Each element of 
 ---
 
 ## 我的思路
-**哈希表/贪心**
+**二分答案**
 
-> 题目意思就是找一个严格递增的子数组，最少可以分成几个。
+> 由于第一个 $l[i]$ 是可能最大为 $1e9$ ，又因为我们要落到每个段中，所以最大的 $k$ 可能是 $1e9$ ，我们二分 $k$ 的大小然后判断 $k$ 的合法性
 
-> 我们用一个哈希表来统计每个数字出现的次数， $C++$ 哈希表会**自动排序**（按照数组大小从小到大排序），$Go$ 要转为一个数组来排序。我们用 `last` 来表示**上一个数**， `pre` 表示**上一个数的`个数`** 。
-
-> 如果来到当前位置**不能和上个数连续**（ $last + 1 != x$ ）那么 $pre$ 就是 $0$ 。统计答案 `ans = max(0, c - pre)` 当前数字`个数`减去 `pre` 。如果当前数个数**比前一个小**，那么 $c - pre < 0$ 就是说我当前的数一定会`包含在`**前一个数组成的序列中**，那么**答案就不需要加**；如果 $c - pre > 0$ 说明**当前数会`溢出`**必须得**形成一个新的子序列**，新的子序列长度就是 `c - pre` （因为是**严格递增子序列**，所以一定必须新增 `c-pre` ）。
+> 对于每个 $k$ ，如果当前 $ll = max(ll-k, l[i])$ 即我们找最小的 $ll$ ，我们可以向左移动最多 $k$ 个单位，和线段左端点比一个较大值； $rr = min(rr+k, r[i])$ ，我们可以像右移动的最大值和线段右端点比一个较小值。如果 $ll < rr$ （我们`下一个线段的左端点`比我们`从上一个地方`可以移动的**最大值**`大`,说明**不能**到下一个线段）直接为 $false$ ，若所有都可以就返回 $true$ 。
 
 ---
 
@@ -103,27 +92,21 @@ func solve(in io.Reader, out io.Writer) {
 	for Fscan(in, &T); T > 0; T-- {
 		var n int
 		Fscan(in, &n)
-		var v int
-		cnt := map[int]int{}
-		for range n {
-			Fscan(in, &v)
-			cnt[v]++
+		l, r := make([]int, n), make([]int, n)
+		for i := range n {
+			Fscan(in, &l[i], &r[i])
 		}
-		keys := make([]int, 0, len(cnt))
-		for k := range cnt {
-			keys = append(keys, k)
-		}
-		last := -1
-		ans := 0
-		pre := 0
-		sort.Ints(keys)
-		for _, x := range keys {
-			if last+1 != x {
-				pre = 0
+		ans := sort.Search(int(1e9), func(k int) bool {
+			ll, rr := 0, 0
+			for i := range n {
+				ll = max(ll-k, l[i])
+				rr = min(rr+k, r[i])
+				if rr < ll {
+					return false
+				}
 			}
-			ans += max(0, cnt[x]-pre)
-			last, pre = x, cnt[x]
-		}
+			return true
+		})
 		Fprintln(out, ans)
 	}
 }
@@ -173,42 +156,7 @@ func main() {
 ## C++ 代码
 
 ```C++
-#include <bits/stdc++.h>
-using namespace std;
-using ll = long long;
 
-void solve() {
-    int n;
-    cin >> n;
-    int v;
-    map<int, int> cnt;
-    for (int i = 0; i < n; i++) {
-        cin >> v;
-        cnt[v]++;
-    }
-    int last = -1;
-    int ans = 0;
-    int pre = 0;
-    for (auto [x, c] : cnt) {
-        if (last + 1 != x) {
-            pre = 0;
-        }
-        ans += max(0, c-pre);
-        last = x, pre = c;
-    }
-    cout << ans << endl;
-}
-
-int main() {
-    ios::sync_with_stdio(false);
-    cin.tie(nullptr);
-
-    int t;
-    cin >> t;
-    while (t--) solve();
-
-    return 0;
-}
 ```
 ---
 ## Python 代码
