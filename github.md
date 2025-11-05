@@ -1,33 +1,19 @@
-# [cf1907D] [Jumping Through Segments](https://codeforces.com/problemset/problem/1907/D)
+# [cf2149E] [Hidden Knowledge of the Ancients](https://codeforces.com/problemset/problem/2149/E)
 
 ## 题目描述
-Polycarp is designing a level for a game. The level consists of $n$ segments on the number line, where the $i$\-th segment starts at the point with coordinate $l_i$ and ends at the point with coordinate $r_i$.
+In the world of Deepwoken, there exists an ancient artifact — Tablet of Infinite Knowledge, on which a sequence of $n$ mysterious symbols (each symbol is an integer) is engraved.
 
-The player starts the level at the point with coordinate $0$. In one move, they can move to any point that is within a distance of no more than $k$. After their $i$\-th move, the player must land within the $i$\-th segment, that is, at a coordinate $x$ such that $l_i \le x \le r_i$. This means:
+It is said that the true power of the artifact can only be revealed by finding all sacred fragments — continuous segments of the tablet that contain exactly $k$ distinct numbers, and their length must be between $l$ and $r$ (inclusive).
 
--   After the first move, they must be inside the first segment (from $l_1$ to $r_1$);
--   After the second move, they must be inside the second segment (from $l_2$ to $r_2$);
--   ...
--   After the $n$\-th move, they must be inside the $n$\-th segment (from $l_n$ to $r_n$).
+Formally: Given a sequence $a$ of length $n$ and integers $k$, $l$, $r$. You need to find the number of such boundaries $b$ and $c$ such that:
 
-The level is considered completed if the player reaches the $n$\-th segment, following the rules described above. After some thought, Polycarp realized that it is impossible to complete the level with some values of $k$.
-
-Polycarp does not want the level to be too easy, so he asks you to determine the minimum integer $k$ with which it is possible to complete the level.
+-   $1 \le b \le c \le n$;
+-   among the elements \[$a_{b}, a_{b + 1}, \dots, a_{c}$\] there are exactly $k$ distinct numbers;
+-   $l \leq c - b + 1 \leq r$.
 
 ---
 ## 题目大意
-$Polycarp$ 正在为游戏设计一个关卡。该级别由数轴上的 $n$ 段组成，其中第 $i$ 段从坐标为 $l_i$ 的点开始，到坐标为 $r_i$ 的点结束。
-
-玩家从坐标为 $0$ 的点开始关卡。一次移动，他们可以移动到距离不超过 $k$ 内的任何点。在第 $i$ \-次移动之后，玩家必须降落在第 $i$ \-th 段内，即在坐标 $x$ 处，使得 $l_i <= r_i$ 。这意味着：
-
-- 第一次移动后，它们必须位于第一段内（从 $l_1$ 到 $r_1$ ）；
-- 第二次移动后，它们必须位于第二段内（从 $l_2$ 到 $r_2$ ）；
-- $...$
-- 第 $n$ 个移动之后，它们必须位于第 $n$ 个段内（从 $l_n$ 到 $r_n$ ）。
-
-如果玩家按照上述规则到达第 $n$ 段，则认为该关卡已完成。经过一番思考，$Polycarp$ 意识到使用 $k$ 的某些值是不可能完成关卡的。
-
-$Polycarp$ 不希望关卡太简单，因此他要求您确定可以完成该关卡的最小整数 $k$ 。
+给定一个数组 $a$ ，有多少个连续子数组 $b$ ，满足 $b$ 的长度在 $[L,R]$ 中，且 $b$ 恰好有 $k$ 个不同元素。
 
 
 ## 输入
@@ -42,11 +28,10 @@ $Polycarp$ 不希望关卡太简单，因此他要求您确定可以完成该关
 ---
 
 ## 我的思路
-**二分答案**
+**不定长恰好型滑动窗口**
 
-> 由于第一个 $l[i]$ 是可能最大为 $1e9$ ，又因为我们要落到每个段中，所以最大的 $k$ 可能是 $1e9$ ，我们二分 $k$ 的大小然后判断 $k$ 的合法性
-
-> 对于每个 $k$ ，如果当前 $ll = max(ll-k, l[i])$ 即我们找最小的 $ll$ ，我们可以向左移动最多 $k$ 个单位，和线段左端点比一个较大值； $rr = min(rr+k, r[i])$ ，我们可以像右移动的最大值和线段右端点比一个较小值。如果 $ll < rr$ （我们`下一个线段的左端点`比我们`从上一个地方`可以移动的**最大值**`大`,说明**不能**到下一个线段）直接为 $false$ ，若所有都可以就返回 $true$ 。
+> 我们用 `f(n)` 来统计 $a$ 中满足不同元素个数`最多`为 `n` 的`子数组个数`为多少。那么不同元素个数`恰好`为 `k` 的子数组个数即为 `f(k) - f(k-1)` 。由于子数组长度要在 $L - R$ 之间，
+当右端点在 $rr$ 时，设 $ll$ 是**最小的满足要求的左端点**。那么子数组长度**最大**为 $min(rr-ll+1, R)$ ，**最小**为 $L$ 。所以有 $min(rr-ll+1,R) - L + 1$ 个右端点为 $rr$ 的子数组。但这不能是负数，所以有 $max(min(rr-ll+1,R) - L + 1, 0)$ 个右端点为 $rr$ 的子数组。
 
 ---
 
@@ -72,7 +57,6 @@ import (
 	. "fmt"
 	"io"
 	"os"
-	"sort"
 )
 
 const inf = 0x3f3f3f3f
@@ -90,24 +74,30 @@ type (
 func solve(in io.Reader, out io.Writer) {
 	var T int
 	for Fscan(in, &T); T > 0; T-- {
-		var n int
-		Fscan(in, &n)
-		l, r := make([]int, n), make([]int, n)
-		for i := range n {
-			Fscan(in, &l[i], &r[i])
+		var n, k, l, r int
+		Fscan(in, &n, &k, &l, &r)
+		a := make([]int, n)
+		for i := range a {
+			Fscan(in, &a[i])
 		}
-		ans := sort.Search(int(1e9), func(k int) bool {
-			ll, rr := 0, 0
-			for i := range n {
-				ll = max(ll-k, l[i])
-				rr = min(rr+k, r[i])
-				if rr < ll {
-					return false
+		f := func(tar int) (res int) {
+			cnt := map[int]int{}
+			ll := 0
+			for rr, v := range a {
+				cnt[v]++
+				for len(cnt) > tar {
+					w := a[ll]
+					cnt[w]--
+					if cnt[w] == 0 {
+						delete(cnt, w)
+					}
+					ll++
 				}
+				res += max(min(rr-ll+1, r)-l+1, 0)
 			}
-			return true
-		})
-		Fprintln(out, ans)
+			return
+		}
+		Fprintln(out, f(k)-f(k-1))
 	}
 }
 
@@ -156,7 +146,6 @@ func main() {
 ## C++ 代码
 
 ```C++
-
 ```
 ---
 ## Python 代码
