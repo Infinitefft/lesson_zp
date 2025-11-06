@@ -1,0 +1,8 @@
+console.log(a);
+console.log(b);
+var a = 1;
+var a = 2;   // 重复声明，不报错，会被忽略
+console.log(2);
+let b = 3;
+// let b = 4;  // 不可以重复声明
+console.log(b);
