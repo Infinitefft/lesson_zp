@@ -1,16 +1,11 @@
-# [cf799C] [Fountains](https://codeforces.com/problemset/problem/799/C)
+# [cf1520D] [Same Differences](https://codeforces.com/problemset/problem/1520/D)
 
 ## 题目描述
-Arkady plays Gardenscapes a lot. Arkady wants to build two new fountains. There are $n$ available fountains, for each fountain its beauty and cost are known. There are two types of money in the game: coins and diamonds, so each fountain cost can be either in coins or diamonds. No money changes between the types are allowed.
-
-Help Arkady to find two fountains with maximum total beauty so that he can buy both at the same time.
+You are given an array $a$ of $n$ integers. Count the number of pairs of indices $(i, j)$ such that $i < j$ and $a_j - a_i = j - i$.
 
 ---
 ## 题目大意
-阿卡迪经常玩《花园风景》。阿尔卡迪想要建造两个新喷泉。有 $n$ 可用的喷泉，每个喷泉的美丽和成本都是已知的。游戏中有两种类型的金钱：金币和钻石，因此每个喷泉的成本可以是金币或钻石。不同类型之间不允许进行货币兑换。
-
-帮助阿尔卡迪找到两个最美丽的喷泉，以便他可以**同时购买两个**。
-
+给您一个包含 $n$ 个整数的数组 $a$ 。计算索引对 $(i, j)$ 的数量，使得 $i<j$ 和 $a_j - a_i = j - i$ 。
 
 ## 输入
 
@@ -24,17 +19,9 @@ Help Arkady to find two fountains with maximum total beauty so that he can buy b
 ---
 
 ## 我的思路
-**二分/预处理前缀**
+**前缀和**
 
-> 我们有三种情况，第一种是两种货币类的各选一个，第二种是金币类型选两个，第三种是钻石选两个。
-
-> 对于第一种，我们各选买得起的最大美丽值的即可
-
-> 对于第二种（第三种类似，所以我们可以**封装成一个函数**减少代码量），我们先根据`货币`大小`从小到大`进行排序。然后我们`枚举每一个位置`为选择的第一个，然后我们对选择的`第二个`进行二分（找到`第一个`买的起的）。例如来到的 `i` 位置的前面价格为 `[3,5,7,9,18]` ，假设减去当前 `i` 位置的价格`剩余的钱`为 `8` ，那么我们找到的 `tar` 为 `7` ，即我们**能买的最贵**的就是 `7` 前面的所有的了。但是我们要找的是`美丽值最大`**而不是货币最大**，怎么根据 `7` 这个信息拿到可以获得的`最大美丽值`?我们可以用一个 `premx` 数组来记录`前缀`美丽值的最大值，这样就可以知道 `tar` 之前能获取到的最大值了。
-
-> 我们还需要处理`连续`的情况
-
-> 我们还得保证`一定能选得到两个`。在二分的逻辑中，我们返回的是`最小满足`的索引 `tar` ，如果 $tar == 0$ 那么就是`找不到两个`的，比如 `[3,5,6,7,10]` 我们剩余的是 `2` 那么 $tar == 0$ 也就是 `3` 说明我们`啥都买不起`，那就不记录答案（让答案为`0`）,如果索引为`数组长度`就说明我们`任意一个都买得起`。还可以让 `premx[0] = -inf` ，即给 $ans$ **投毒**，当前位置的美丽值加上的 $premx[0]$ 一定比 $0$ `小`，那也就不需要判断 `tar > 0` 了
+> 我们对 $a_j - a_i = j - i$ 进行移项可以得到 $a_j - j = a_i - i$ ，看成一个函数那也就是 $f_j = f_i$ 也就是找相等的，我们用一个哈希表来记录前缀 $f_i$ ，如果 $f_j$ 在哈希表里有值，我们直接加入答案即可。
 
 ---
 
@@ -60,7 +47,6 @@ import (
 	. "fmt"
 	"io"
 	"os"
-	"sort"
 )
 
 const inf = 0x3f3f3f3f
@@ -80,76 +66,22 @@ type pair struct {
 }
 
 func solve(in io.Reader, out io.Writer) {
-	//var T int
-	//for Fscan(in, &T); T > 0; T-- {
-	var n, c, d int // c, d 为持有的货币总数
-	Fscan(in, &n, &c, &d)
-	var b, p int
-	var tp string
-	cc, dd := []pair{}, []pair{}
-	for range n {
-		Fscan(in, &b, &p, &tp)
-		if tp[0] == 'D' {
-			dd = append(dd, pair{b, p})
-		} else {
-			cc = append(cc, pair{b, p})
-		}
-	}
-	ccmx, ddmx := 0, 0
-	check1, check2 := false, false
-	//Fprint(out, "金币：")
-	for _, x := range cc {
-		//Fprint(out, x, " ")
-		if x.mon <= c {
-			check1 = true
-			ccmx = max(ccmx, x.bea)
-		}
-	}
-	//Fprintln(out)
-	//Fprint(out, "钻石：")
-	for _, x := range dd {
-		//Fprint(out, x, " ")
-		if x.mon <= d {
-			check2 = true
-			ddmx = max(ddmx, x.bea)
-		}
-	}
-	ans := 0
-	if check1 && check2 {
-		ans = ccmx + ddmx
-	}
-	f := func(a []pair, k int) (res int) {
-		if len(a) < 2 {
-			return 0
-		}
-
-		sort.Slice(a, func(i, j int) bool { return a[i].mon < a[j].mon })
-		premx := make([]int, len(a)+1)
-		for i, x := range a {
-			premx[i+1] = max(premx[i], x.bea)
-		}
-
-		for i := 1; i < len(a); i++ {
-			if a[i].mon+a[i-1].mon <= k {
-				res = max(res, a[i].bea+a[i-1].bea)
+	var T int
+	for Fscan(in, &T); T > 0; T-- {
+		var n int
+		Fscan(in, &n)
+		ans := 0
+		cnt := map[int]int{}
+		var v int
+		for i := range n {
+			Fscan(in, &v)
+			if val, ok := cnt[v-i]; ok {
+				ans += val
 			}
+			cnt[v-i]++
 		}
-
-		for i, x := range a {
-			if x.mon > k {
-				break
-			}
-			remain := k - x.mon
-			tar := sort.Search(i, func(j int) bool { return a[j].mon > remain })
-			if tar > 0 {
-				res = max(res, x.bea+premx[tar])
-			}
-		}
-		return
+		Fprintln(out, ans)
 	}
-	ans = max(ans, max(f(cc, c), f(dd, d)))
-	Fprintln(out, ans)
-	//}
 }
 
 func abs(x int) int {
