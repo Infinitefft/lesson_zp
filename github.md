@@ -1,11 +1,36 @@
-# [LeetCode1611] [使整数变为 0 的最少操作次数](https://leetcode.cn/problems/minimum-one-bit-operations-to-make-integers-zero/description/)
+# [cf2000D] [Right Left Wrong](https://codeforces.com/problemset/problem/2000/D)
 
 ## 题目描述
-给你一个整数 `n` ，你需要重复执行多次下述操作将其转换为 `0` ：
+Vlad found a strip of $n$ cells, numbered from left to right from $1$ to $n$. In the $i$\-th cell, there is a positive integer $a_i$ and a letter $s_i$, where all $s_i$ are either 'L' or 'R'.
 
-翻转 `n` 的二进制表示中最右侧位（第 `0` 位）。
-如果第 `(i-1)` 位为 `1` 且从第 `(i-2)` 位到第 `0` 位都为 `0`，则翻转 `n` 的二进制表示中的第 `i` 位。
-返回将 `n` 转换为 `0` 的最小操作次数。
+Vlad invites you to try to score the maximum possible points by performing any (possibly zero) number of operations.
+
+In one operation, you can choose two indices $l$ and $r$ ($1 \le l < r \le n$) such that $s_l$ = 'L' and $s_r$ = 'R' and do the following:
+
+-   add $a_l + a_{l + 1} + \dots + a_{r - 1} + a_r$ points to the current score;
+-   replace $s_i$ with '.' for all $l \le i \le r$, meaning you can no longer choose these indices.
+
+For example, consider the following strip:
+
+| $3$ | $5$ | $1$ | $4$ | $3$ | $2$ |
+|  --- | --- | --- | --- | --- | ---  |
+| L | R | L | L | L | R |
+
+You can first choose $l = 1$, $r = 2$ and add $3 + 5 = 8$ to your score.
+
+| $3$ | $5$ | $1$ | $4$ | $3$ | $2$ |
+|  --- | --- | --- | --- | --- | ---  |
+| . | . | L | L | L | R |
+
+Then choose $l = 3$, $r = 6$ and add $1 + 4 + 3 + 2 = 10$ to your score.
+
+| $3$ | $5$ | $1$ | $4$ | $3$ | $2$ |
+|  --- | --- | --- | --- | --- | ---  |
+| . | . | . | . | . | . |
+
+As a result, it is impossible to perform another operation, and the final score is $18$.
+
+What is the maximum score that can be achieved?
 
 ---
 
@@ -22,23 +47,17 @@
 ---
 
 ## 我的思路
-**数学**
+**双指针**
 
-> 计算 `10` 需要多少次。 $10 -> 11 -> 01 -> 00$ , 需要 	`3` 次
+> 输入 `T(≤1e4)` 表示 `T` 组数据。所有数据的 `n` 之和 `≤2e5` 。
+每组数据输入 $n(2 ≤ n ≤ 2^5)$ ，长为 `n` 的数组 $a(1 ≤ a_i≤ 1^5)$，长为 $n$ 的字符串 $s$ ，只包含大写字母 `'L'` 和 `'R'` 。
 
-> 计算 `100` , $100 -> 101 -> 111 -> 110 -> 010 -> 011 -> 001 -> 000$ , 需要 `7` 次
+> 每次操作：
+选择 $a$ 的一个子数组 $[i,j]$ ，满足 $s[i] = 'L'$ 且 $s[j] = 'R'$ 。
+获得等于子数组 $[i,j]$ 的元素和的分数。
+把 $s$ 的子串 $[i,j]$ 中的字符全部改成 '.'。
 
-> 观察可以看到 `100` 变成 `0` 需要 $f(10) + 1 + f(10) = 7$ 次。 $$100 -> 101 -> 111[f(10)] -> 110(+1) -> 010 -> 011 -> 001 -> 000[f(10)]$$ 
-
-> 同理可得到 $f(1000) = f(100) + 1 + f(100) = 15$ 。
-
-
-> 那么一般地，我们有 $$f(2^k) = 2f(2^{k-1}) + 1$$
-即 $$f(2^k) + 1 = 2f(2^{k-1} + 1)$$ 。所以 $$f(2^k)+1 是个等比数列，公比为  2，初始值为 f(1)+1=2 $$ ，得 $$f(2^k) = 2^{k+1} - 1$$
-
-**上面为 $n$ 为 $2$ 的幂的情况**
-
-> 一般地，设 n 的二进制长度为 k，我们有 $$f(n) = f(2^{k-1}) - f(n-2^{k-1})= 2^k - 1 - f(n-2^{k-1})$$ 。其中 $n−2^{k−1}$ 表示 $n$ 去掉最高的 $1$ 后的值。递归边界： $f(0) = 0$ 。
+> 输出总得分的最大值。
 
 ---
 
@@ -57,13 +76,96 @@ $O()$
 ## Go 代码
 
 ```Go
-func minimumOneBitOperations(n int) int {
-    if n == 0 {
-		return 0
+package main
+
+import (
+	"bufio"
+	. "fmt"
+	"io"
+	"os"
+)
+
+const inf = 0x3f3f3f3f
+
+type (
+	i8  = int8
+	i64 = int64
+	i32 = int32
+	u64 = uint64
+	u32 = uint32
+	f32 = float32
+	f64 = float64
+)
+
+func solve(in io.Reader, out io.Writer) {
+	var T int
+	for Fscan(in, &T); T > 0; T-- {
+		var n int
+		Fscan(in, &n)
+		a := make([]int, n)
+		cnt := make([]int, n+1)
+		for i := range a {
+			Fscan(in, &a[i])
+			cnt[i+1] = cnt[i] + a[i]
+		}
+		var s string
+		Fscan(in, &s)
+		ans := 0
+		l, r := 0, n-1
+		for l < r {
+			if s[l] == 'L' && s[r] == 'R' {
+				ans += cnt[r+1] - cnt[l]
+				r--
+				l++
+			} else if s[l] == 'R' {
+				l++
+			} else if s[r] == 'L' {
+				r--
+			}
+		}
+		Fprintln(out, ans)
 	}
-	k := bits.Len(uint(n))
-	return (1<<k) - 1 - minimumOneBitOperations(n-1<<(k-1))
 }
+
+func abs(x int) int {
+	if x < 0 {
+		return -x
+	}
+	return x
+}
+
+func abs64(x i64) i64 {
+	if x < 0 {
+		return -x
+	}
+	return x
+}
+
+func gcd(x, y int) int {
+	for y != 0 {
+		x, y = y, x%y
+	}
+	return x
+}
+
+func max64(x, y i64) i64 {
+	if x > y {
+		return x
+	}
+	return y
+}
+
+func min64(x, y i64) i64 {
+	if x < y {
+		return x
+	}
+	return y
+}
+
+func main() {
+	solve(bufio.NewReader(os.Stdin), os.Stdout)
+}
+
 ```
 ---
 
@@ -75,10 +177,4 @@ func minimumOneBitOperations(n int) int {
 ## Python 代码
 
 ```Python
-class Solution:
-    def minimumOneBitOperations(self, n: int) -> int:
-        if n == 0:
-            return 0
-        k = n.bit_length()
-        return (1 << k) - 1 - self.minimumOneBitOperations(n - (1 << (k - 1)))
 ```
