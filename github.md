@@ -1,36 +1,15 @@
-# [cf2000D] [Right Left Wrong](https://codeforces.com/problemset/problem/2000/D)
+# [cf691E] [Xor-sequences](https://codeforces.com/problemset/problem/691/E)
 
 ## 题目描述
-Vlad found a strip of $n$ cells, numbered from left to right from $1$ to $n$. In the $i$\-th cell, there is a positive integer $a_i$ and a letter $s_i$, where all $s_i$ are either 'L' or 'R'.
+您将获得 `n` 个整数 $a_1, a_2, ..., a_n$ 。
 
-Vlad invites you to try to score the maximum possible points by performing any (possibly zero) number of operations.
+如果对于每个 $1  ≤  i  ≤  k - 1$ 数字 $x_i$ 的二进制表示形式中有 $1$ 个，则整数序列 $x_1, x_2,..., x_k$ 称为`“异或序列”`  $x_i + 1$ 是 $3$ 的倍数 和 对于所有 $1 ≤ i ≤ k$ 。符号 用于二进制异或 手术。
 
-In one operation, you can choose two indices $l$ and $r$ ($1 \le l < r \le n$) such that $s_l$ = 'L' and $s_r$ = 'R' and do the following:
+存在多少个长度为 $k$ 的`“异或序列”`？输出对 $10^9 + 7$ 取模的答案。
 
--   add $a_l + a_{l + 1} + \dots + a_{r - 1} + a_r$ points to the current score;
--   replace $s_i$ with '.' for all $l \le i \le r$, meaning you can no longer choose these indices.
+请注意，如果 $a = [1, 1]$ 和 $k = 1$ 则答案为 $2$ ，因为您应该将 $a$ 中的答案视为不同。
 
-For example, consider the following strip:
 
-| $3$ | $5$ | $1$ | $4$ | $3$ | $2$ |
-|  --- | --- | --- | --- | --- | ---  |
-| L | R | L | L | L | R |
-
-You can first choose $l = 1$, $r = 2$ and add $3 + 5 = 8$ to your score.
-
-| $3$ | $5$ | $1$ | $4$ | $3$ | $2$ |
-|  --- | --- | --- | --- | --- | ---  |
-| . | . | L | L | L | R |
-
-Then choose $l = 3$, $r = 6$ and add $1 + 4 + 3 + 2 = 10$ to your score.
-
-| $3$ | $5$ | $1$ | $4$ | $3$ | $2$ |
-|  --- | --- | --- | --- | --- | ---  |
-| . | . | . | . | . | . |
-
-As a result, it is impossible to perform another operation, and the final score is $18$.
-
-What is the maximum score that can be achieved?
 
 ---
 
@@ -47,17 +26,9 @@ What is the maximum score that can be achieved?
 ---
 
 ## 我的思路
-**双指针**
+**矩阵快速幂优化DP**
 
-> 输入 `T(≤1e4)` 表示 `T` 组数据。所有数据的 `n` 之和 `≤2e5` 。
-每组数据输入 $n(2 ≤ n ≤ 2^5)$ ，长为 `n` 的数组 $a(1 ≤ a_i≤ 1^5)$，长为 $n$ 的字符串 $s$ ，只包含大写字母 `'L'` 和 `'R'` 。
-
-> 每次操作：
-选择 $a$ 的一个子数组 $[i,j]$ ，满足 $s[i] = 'L'$ 且 $s[j] = 'R'$ 。
-获得等于子数组 $[i,j]$ 的元素和的分数。
-把 $s$ 的子串 $[i,j]$ 中的字符全部改成 '.'。
-
-> 输出总得分的最大值。
+> 
 
 ---
 
@@ -82,59 +53,91 @@ import (
 	"bufio"
 	. "fmt"
 	"io"
+	"math/bits"
 	"os"
 )
 
 const inf = 0x3f3f3f3f
 
 type (
-	i8  = int8
 	i64 = int64
 	i32 = int32
 	u64 = uint64
 	u32 = uint32
-	f32 = float32
-	f64 = float64
 )
 
-func solve(in io.Reader, out io.Writer) {
-	var T int
-	for Fscan(in, &T); T > 0; T-- {
-		var n int
-		Fscan(in, &n)
-		a := make([]int, n)
-		cnt := make([]int, n+1)
-		for i := range a {
-			Fscan(in, &a[i])
-			cnt[i+1] = cnt[i] + a[i]
-		}
-		var s string
-		Fscan(in, &s)
-		ans := 0
-		l, r := 0, n-1
-		for l < r {
-			if s[l] == 'L' && s[r] == 'R' {
-				ans += cnt[r+1] - cnt[l]
-				r--
-				l++
-			} else if s[l] == 'R' {
-				l++
-			} else if s[r] == 'L' {
-				r--
+const mod = int(1e9 + 7)
+
+type matrix [][]int
+
+func newMatrix(n, m int) matrix {
+	a := make(matrix, n)
+	for i := range a {
+		a[i] = make([]int, m)
+	}
+	return a
+}
+
+func (a matrix) mul(b matrix) matrix {
+	c := newMatrix(len(a), len(b[0]))
+	for i, row := range a {
+		for k, x := range row {
+			if x == 0 {
+				continue
+			}
+			for j, y := range b[k] {
+				c[i][j] = (c[i][j] + x*y) % mod
 			}
 		}
-		Fprintln(out, ans)
 	}
+	return c
+}
+
+func (a matrix) powMul(n int, f0 matrix) matrix {
+	res := f0
+	for ; n > 0; n /= 2 {
+		if n&1 != 0 {
+			res = a.mul(res)
+		}
+		a = a.mul(a)
+	}
+	return res
+}
+
+func solve(in io.Reader, out io.Writer) {
+	//var T int
+	//for Fscan(in, &T); T > 0; T-- {
+	var n, k int
+	Fscan(in, &n, &k)
+	ans := 0
+	a := make([]int, n)
+	for i := range a {
+		Fscan(in, &a[i])
+	}
+	m := newMatrix(n, n)
+	for i, v := range a {
+		for j, w := range a[:i+1] {
+			if bits.OnesCount(uint(v^w))%3 == 0 {
+				m[i][j] = 1
+				m[j][i] = 1
+			}
+		}
+	}
+
+	f0 := newMatrix(n, 1)
+	for i := range f0 {
+		f0[i][0] = 1
+	}
+
+	fk := m.powMul(k-1, f0)
+	for _, row := range fk {
+		ans += row[0]
+	}
+	Fprint(out, ans%mod)
+	//}
 }
 
 func abs(x int) int {
-	if x < 0 {
-		return -x
-	}
-	return x
-}
-
-func abs64(x i64) i64 {
 	if x < 0 {
 		return -x
 	}
@@ -165,7 +168,6 @@ func min64(x, y i64) i64 {
 func main() {
 	solve(bufio.NewReader(os.Stdin), os.Stdout)
 }
-
 ```
 ---
 
