@@ -1,14 +1,11 @@
-# [cf691E] [Xor-sequences](https://codeforces.com/problemset/problem/691/E)
+# [cf2147C] [Rabbits](https://codeforces.com/problemset/problem/2147/C)
 
 ## 题目描述
-您将获得 `n` 个整数 $a_1, a_2, ..., a_n$ 。
+You have $n$ flower pots arranged in a line numbered from $1$ to $n$ left to right. Some of the pots contain flowers, while others are empty. You are given a binary string $s$ describing which pots contain flowers ($s_i = 1$) and which are empty ($s_i = 0$). You also have some rabbits, and you want to take a nice picture of rabbits and flowers. You want to put rabbits in every empty pot ($s_i = 0$), and for each rabbit, you can put it looking either to the left or to the right. Unfortunately, the rabbits are quite naughty, and they will try to jump, which will ruin the picture.
 
-如果对于每个 $1  ≤  i  ≤  k - 1$ 数字 $x_i$ 的二进制表示形式中有 $1$ 个，则整数序列 $x_1, x_2,..., x_k$ 称为`“异或序列”`  $x_i + 1$ 是 $3$ 的倍数 和 对于所有 $1 ≤ i ≤ k$ 。符号 用于二进制异或 手术。
+Each rabbit will prepare to jump into the next pot in the direction they are looking, but they won't jump if there is a rabbit in that pot already or if there is another rabbit that prepares to jump into the same pot from the opposite side. Rabbits won't jump out of the borders (a rabbit at pot $1$ looking to the left won't jump, same for a rabbit looking to the right at pot $n$).
 
-存在多少个长度为 $k$ 的`“异或序列”`？输出对 $10^9 + 7$ 取模的答案。
-
-请注意，如果 $a = [1, 1]$ 和 $k = 1$ 则答案为 $2$ ，因为您应该将 $a$ 中的答案视为不同。
-
+Your goal is to choose the directions of the rabbits so that they never jump, allowing you to take your time to take the picture. You need to determine if there is a valid arrangement of rabbits such that no rabbit ever jumps.
 
 
 ---
@@ -16,19 +13,20 @@
 
 ## 输入
 
->
+> 
 
 
 ## 输出
 
->
+> 
 
 ---
 
 ## 我的思路
-**矩阵快速幂优化DP**
 
-> 
+**思维/贪心**
+
+> 看 0，1，0 模式的特殊段
 
 ---
 
@@ -53,91 +51,68 @@ import (
 	"bufio"
 	. "fmt"
 	"io"
-	"math/bits"
 	"os"
 )
 
 const inf = 0x3f3f3f3f
 
 type (
+	i8  = int8
 	i64 = int64
 	i32 = int32
 	u64 = uint64
 	u32 = uint32
+	f32 = float32
+	f64 = float64
 )
 
-const mod = int(1e9 + 7)
-
-type matrix [][]int
-
-func newMatrix(n, m int) matrix {
-	a := make(matrix, n)
-	for i := range a {
-		a[i] = make([]int, m)
-	}
-	return a
-}
-
-func (a matrix) mul(b matrix) matrix {
-	c := newMatrix(len(a), len(b[0]))
-	for i, row := range a {
-		for k, x := range row {
-			if x == 0 {
-				continue
-			}
-			for j, y := range b[k] {
-				c[i][j] = (c[i][j] + x*y) % mod
-			}
-		}
-	}
-	return c
-}
-
-func (a matrix) powMul(n int, f0 matrix) matrix {
-	res := f0
-	for ; n > 0; n /= 2 {
-		if n&1 != 0 {
-			res = a.mul(res)
-		}
-		a = a.mul(a)
-	}
-	return res
-}
-
 func solve(in io.Reader, out io.Writer) {
-	//var T int
-	//for Fscan(in, &T); T > 0; T-- {
-	var n, k int
-	Fscan(in, &n, &k)
-	ans := 0
-	a := make([]int, n)
-	for i := range a {
-		Fscan(in, &a[i])
-	}
-	m := newMatrix(n, n)
-	for i, v := range a {
-		for j, w := range a[:i+1] {
-			if bits.OnesCount(uint(v^w))%3 == 0 {
-				m[i][j] = 1
-				m[j][i] = 1
+	var T int
+o:
+	for Fscan(in, &T); T > 0; T-- {
+		var n int
+		Fscan(in, &n)
+		var s string
+		Fscan(in, &s)
+		last := -2 // 可以处理第一个是 0 的情况
+		cnt := 0   // 0， 1， 0 特殊段的数量
+		for i, c := range s {
+			if c == '0' {
+				if i-last > 2 { // 形成了新的一段 例如：0, 0, 0(last), 1, 1, 0(i)  cnt 是上一段连续的 0 的个数
+					if cnt&1 == 1 {
+						// 如果之前累积的特殊段是奇数，无法安排方向，冲突
+						Fprintln(out, "NO")
+						continue o
+					}
+					cnt = 1 // 重置计数，当前空花盆 i 作为新段的起点
+				} else if i-last == 2 { // 形成 0, 1, 0
+					// 如果前面统计的只有一个零，那么0, 1, 0可以形成一对
+					if cnt >= 1 {
+						cnt++
+					}
+				} else {
+					//连续的 0 ，那么重置特殊段的数量
+					cnt = 0
+				}
+				last = i
 			}
 		}
+		if n+1-last > 2 && cnt%2 == 1 { // 处理剩下的,最后一个不会跳出界
+			Fprintln(out, "NO")
+			continue o
+		}
+		Fprintln(out, "YES")
 	}
-
-	f0 := newMatrix(n, 1)
-	for i := range f0 {
-		f0[i][0] = 1
-	}
-
-	fk := m.powMul(k-1, f0)
-	for _, row := range fk {
-		ans += row[0]
-	}
-	Fprint(out, ans%mod)
-	//}
 }
 
 func abs(x int) int {
+	if x < 0 {
+		return -x
+	}
+	return x
+}
+
+func abs64(x i64) i64 {
 	if x < 0 {
 		return -x
 	}
@@ -168,6 +143,7 @@ func min64(x, y i64) i64 {
 func main() {
 	solve(bufio.NewReader(os.Stdin), os.Stdout)
 }
+
 ```
 ---
 
@@ -179,4 +155,11 @@ func main() {
 ## Python 代码
 
 ```Python
+```
+
+---
+
+## JavaScript 代码
+
+```JavaScript
 ```
