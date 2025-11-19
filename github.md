@@ -1,11 +1,14 @@
-# [cf2147C] [Rabbits](https://codeforces.com/problemset/problem/2147/C)
+# [LeetCode2154] [将找到的值乘以 2](https://leetcode.cn/problems/keep-multiplying-found-values-by-two/)
 
 ## 题目描述
-You have $n$ flower pots arranged in a line numbered from $1$ to $n$ left to right. Some of the pots contain flowers, while others are empty. You are given a binary string $s$ describing which pots contain flowers ($s_i = 1$) and which are empty ($s_i = 0$). You also have some rabbits, and you want to take a nice picture of rabbits and flowers. You want to put rabbits in every empty pot ($s_i = 0$), and for each rabbit, you can put it looking either to the left or to the right. Unfortunately, the rabbits are quite naughty, and they will try to jump, which will ruin the picture.
+给你一个整数数组 `nums` ，另给你一个整数 `original` ，这是需要在 `nums` 中搜索的第一个数字。
 
-Each rabbit will prepare to jump into the next pot in the direction they are looking, but they won't jump if there is a rabbit in that pot already or if there is another rabbit that prepares to jump into the same pot from the opposite side. Rabbits won't jump out of the borders (a rabbit at pot $1$ looking to the left won't jump, same for a rabbit looking to the right at pot $n$).
+接下来，你需要按下述步骤操作：
 
-Your goal is to choose the directions of the rabbits so that they never jump, allowing you to take your time to take the picture. You need to determine if there is a valid arrangement of rabbits such that no rabbit ever jumps.
+如果在 `nums` 中找到 `original` ，将 `original` 乘以 2 ，得到新 `original`（即，令 `original = 2 * original`）。
+否则，停止这一过程。
+只要能在数组中找到新 `original` ，就对新 `original` 继续 重复 这一过程。
+返回 `original` 的 `最终` 值。
 
 
 ---
@@ -24,9 +27,9 @@ Your goal is to choose the directions of the rabbits so that they never jump, al
 
 ## 我的思路
 
-**思维/贪心**
+**位运算优化**
 
-> 看 0，1，0 模式的特殊段
+> $mask$ 用于来记录出现的 $original * 2^k$
 
 ---
 
@@ -45,105 +48,18 @@ $O()$
 ## Go 代码
 
 ```Go
-package main
-
-import (
-	"bufio"
-	. "fmt"
-	"io"
-	"os"
-)
-
-const inf = 0x3f3f3f3f
-
-type (
-	i8  = int8
-	i64 = int64
-	i32 = int32
-	u64 = uint64
-	u32 = uint32
-	f32 = float32
-	f64 = float64
-)
-
-func solve(in io.Reader, out io.Writer) {
-	var T int
-o:
-	for Fscan(in, &T); T > 0; T-- {
-		var n int
-		Fscan(in, &n)
-		var s string
-		Fscan(in, &s)
-		last := -2 // 可以处理第一个是 0 的情况
-		cnt := 0   // 0， 1， 0 特殊段的数量
-		for i, c := range s {
-			if c == '0' {
-				if i-last > 2 { // 形成了新的一段 例如：0, 0, 0(last), 1, 1, 0(i)  cnt 是上一段连续的 0 的个数
-					if cnt&1 == 1 {
-						// 如果之前累积的特殊段是奇数，无法安排方向，冲突
-						Fprintln(out, "NO")
-						continue o
-					}
-					cnt = 1 // 重置计数，当前空花盆 i 作为新段的起点
-				} else if i-last == 2 { // 形成 0, 1, 0
-					// 如果前面统计的只有一个零，那么0, 1, 0可以形成一对
-					if cnt >= 1 {
-						cnt++
-					}
-				} else {
-					//连续的 0 ，那么重置特殊段的数量
-					cnt = 0
-				}
-				last = i
-			}
-		}
-		if n+1-last > 2 && cnt%2 == 1 { // 处理剩下的,最后一个不会跳出界
-			Fprintln(out, "NO")
-			continue o
-		}
-		Fprintln(out, "YES")
-	}
+func findFinalValue(nums []int, original int) int {
+    mask := 0    // 用二进制记录出现过的 original * 2^k 
+    // 假设最终 mask = 1111011 那么倒数最低位开始第三位就是要找的答案
+    for _, x := range nums {
+        k := x/original   // 找到倍数
+        if x%original == 0 && k&(k-1) == 0 {   // 如果 k 是 original 的倍数，并且 k 是 2 的幂
+            mask |= k   // 记录
+        }
+    }
+    mask = ^mask  // 取反
+    return original * (mask & -mask)   // mask & -mask 取最低位的 1
 }
-
-func abs(x int) int {
-	if x < 0 {
-		return -x
-	}
-	return x
-}
-
-func abs64(x i64) i64 {
-	if x < 0 {
-		return -x
-	}
-	return x
-}
-
-func gcd(x, y int) int {
-	for y != 0 {
-		x, y = y, x%y
-	}
-	return x
-}
-
-func max64(x, y i64) i64 {
-	if x > y {
-		return x
-	}
-	return y
-}
-
-func min64(x, y i64) i64 {
-	if x < y {
-		return x
-	}
-	return y
-}
-
-func main() {
-	solve(bufio.NewReader(os.Stdin), os.Stdout)
-}
-
 ```
 ---
 
@@ -155,6 +71,16 @@ func main() {
 ## Python 代码
 
 ```Python
+class Solution:
+    def findFinalValue(self, nums: List[int], original: int) -> int:
+        mask = 0
+        for x in nums:
+            k, r = divmod(x, original)
+            if r == 0 and k&(k-1) == 0:
+                mask |= k
+        
+        mask= ~mask
+        return original * (mask & -mask)
 ```
 
 ---
@@ -162,4 +88,20 @@ func main() {
 ## JavaScript 代码
 
 ```JavaScript
+/**
+ * @param {number[]} nums
+ * @param {number} original
+ * @return {number}
+ */
+var findFinalValue = function(nums, original) {
+    let mask = 0;
+    for (const x of nums) {
+        const k = x / original;
+        if (x % original == 0 && (k & (k - 1)) == 0) {
+            mask |= k;
+        }
+    }
+    mask = ~mask;
+    return original * (mask & -mask);
+};
 ```
