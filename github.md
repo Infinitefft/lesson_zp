@@ -1,18 +1,24 @@
-# [LeetCode2154] [将找到的值乘以 2](https://leetcode.cn/problems/keep-multiplying-found-values-by-two/)
+# [cf1860C] [Game on Permutation](https://codeforces.com/problemset/problem/1860/C)
 
 ## 题目描述
-给你一个整数数组 `nums` ，另给你一个整数 `original` ，这是需要在 `nums` 中搜索的第一个数字。
+Alice and Bob are playing a game. They have a permutation $p$ of size $n$ (a permutation of size $n$ is an array of size $n$ where each element from $1$ to $n$ occurs exactly once). They also have a chip, which can be placed on any element of the permutation.
 
-接下来，你需要按下述步骤操作：
+Alice and Bob make alternating moves: Alice makes the first move, then Bob makes the second move, then Alice makes the third move, and so on. During the first move, Alice chooses any element of the permutation and places the chip on that element. During each of the next moves, the current player **has to** move the chip to any element that is simultaneously to the left and strictly less than the current element (i. e. if the chip is on the $i$\-th element, it can be moved to the $j$\-th element if $j < i$ and $p_j < p_i$). If a player cannot make a move (it is impossible to move the chip according to the rules of the game), that player **wins** the game.
 
-如果在 `nums` 中找到 `original` ，将 `original` 乘以 2 ，得到新 `original`（即，令 `original = 2 * original`）。
-否则，停止这一过程。
-只要能在数组中找到新 `original` ，就对新 `original` 继续 重复 这一过程。
-返回 `original` 的 `最终` 值。
+Let's say that the $i$\-th element of the permutation is **lucky** if the following condition holds:
+
+-   if Alice places the chip on the $i$\-th element during her first move, she can win the game no matter how Bob plays (i. e. she has a winning strategy).
+
+You have to calculate the number of lucky elements in the permutation.
 
 
 ---
 
+## 题目大意
+给你一个数组 $p$，数组 $p$ 是一个长度为 $n$ 的排列。 $Alice$ 可以选择在 $i$ 处任意一个点放棋子，然后 $Bob$ 操作棋子，但是必须满足 $j < i , p_i < p_j$ ，每次来到的位置想要到另一个位置都需要满足这个条件。如果当前人无法进行移动，那么当前人就会输。如果 $Alice$ 选择的位置 $pos$ 使得 $Bob$ 是输的那么 $pos$ 就算是一个幸运的，就可以让答案加 $1$ 。
+
+
+---
 
 ## 输入
 
@@ -27,9 +33,14 @@
 
 ## 我的思路
 
-**位运算优化**
+**DP/博弈**
 
-> $mask$ 用于来记录出现的 $original * 2^k$
+> 我们以博弈和状态转移的视角看待，如果来到的当前位置 $i$ ，如果无法向前进行移动，那么当前人就是输的。如果假设我们知道往前移动的所有位置都是必败的，并且可以往前移动，那么当前这个人是必赢的(当前人可以选择移动到`必败点`，然后另一个人操作，因为另一个人**来到的**是必败点，那么另一个人就输了)。
+
+> 因为我们是 $Alice$ 先操作，所以我们只需要判断当前位置 $i$ ，如果 $i$ 是必败点，那么 $i$ 就是一个幸运的位置。我们需要的条件有 `1.是否可以移动`  `2.如果可以移动，移动到的位置是否是必败点` 。因为我们需要枚举所有的位置，所以基本时间复杂度是 $O(n)$ ，那么如何 $O(1)$ 地获取判断信息呢？我们可以维护一个最小值，只要前缀最小值是小于当前位置也就是可以移动的。如果当前位置比必胜点中最小的那一个还要小那也就可以知道是必败的。
+
+> 所以我们维护`前缀最小值`和`前缀最小必胜点`
+
 
 ---
 
@@ -48,39 +59,119 @@ $O()$
 ## Go 代码
 
 ```Go
-func findFinalValue(nums []int, original int) int {
-    mask := 0    // 用二进制记录出现过的 original * 2^k 
-    // 假设最终 mask = 1111011 那么倒数最低位开始第三位就是要找的答案
-    for _, x := range nums {
-        k := x/original   // 找到倍数
-        if x%original == 0 && k&(k-1) == 0 {   // 如果 k 是 original 的倍数，并且 k 是 2 的幂
-            mask |= k   // 记录
-        }
-    }
-    mask = ^mask  // 取反
-    return original * (mask & -mask)   // mask & -mask 取最低位的 1
+package main
+
+import (
+	"bufio"
+	. "fmt"
+	"io"
+	"os"
+)
+
+const inf = 0x3f3f3f3f
+
+type (
+	i8  = int8
+	i64 = int64
+	i32 = int32
+	u64 = uint64
+	u32 = uint32
+	f32 = float32
+	f64 = float64
+)
+
+func solve(in io.Reader, out io.Writer) {
+	var T int
+	for Fscan(in, &T); T > 0; T-- {
+		var n int
+		Fscan(in, &n)
+		var v int
+		ans := 0
+		mn, mnwin := inf, inf
+		for range n {
+			Fscan(in, &v)
+			if mn < v && v < mnwin {
+				ans++
+				mnwin = v
+			}
+			mn = min(mn, v)
+		}
+		Fprintln(out, ans)
+	}
 }
+
+func abs(x int) int {
+	if x < 0 {
+		return -x
+	}
+	return x
+}
+
+func abs64(x i64) i64 {
+	if x < 0 {
+		return -x
+	}
+	return x
+}
+
+func gcd(x, y int) int {
+	for y != 0 {
+		x, y = y, x%y
+	}
+	return x
+}
+
+func max64(x, y i64) i64 {
+	if x > y {
+		return x
+	}
+	return y
+}
+
+func min64(x, y i64) i64 {
+	if x < y {
+		return x
+	}
+	return y
+}
+
+func main() {
+	solve(bufio.NewReader(os.Stdin), os.Stdout)
+}
+
 ```
 ---
 
 ## C++ 代码
 
 ```C++
+
 ```
 ---
 ## Python 代码
 
 ```Python
-class Solution:
-    def findFinalValue(self, nums: List[int], original: int) -> int:
-        mask = 0
-        for x in nums:
-            k, r = divmod(x, original)
-            if r == 0 and k&(k-1) == 0:
-                mask |= k
-        
-        mask= ~mask
-        return original * (mask & -mask)
+import sys
+input = sys.stdin.readline
+
+def solve():
+    T = int(input())
+    for _ in range(T):
+        n = int(input())
+        a = list(map(int, input().split()))
+
+        ans = 0
+        mn, mnwin = float('inf'), float('inf')
+        for v in a:
+            if mn < v and v < mnwin:
+                ans += 1
+                mnwin = v
+            mn = min(mn, v)
+
+        print(ans)
+
+if __name__ == "__main__":
+    solve()
 ```
 
 ---
@@ -88,20 +179,5 @@ class Solution:
 ## JavaScript 代码
 
 ```JavaScript
-/**
- * @param {number[]} nums
- * @param {number} original
- * @return {number}
- */
-var findFinalValue = function(nums, original) {
-    let mask = 0;
-    for (const x of nums) {
-        const k = x / original;
-        if (x % original == 0 && (k & (k - 1)) == 0) {
-            mask |= k;
-        }
-    }
-    mask = ~mask;
-    return original * (mask & -mask);
-};
+
 ```

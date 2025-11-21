@@ -1,0 +1,64 @@
+html {
+    /* 怪异盒模型 */
+    box-sizing: border-box;
+    /* box-sizing: content-box  标准盒模型*/
+    min-height: 100vh;
+    display: flex;   /* 弹性格式化上下文 */
+    justify-content: center;    /* 盒子 主轴居中 默认横轴 */
+    align-items: center;   /* 侧轴居中 */
+    text-align: center;     /* 行内居中 */
+    /* vertical-align: center;    兄弟间的居中 */
+}
+
+*, *::before, *::after {
+    box-sizing: inherit;
+}
+.wrapper {
+    padding: 20px;
+    max-width: 350px;   /* 移动端适配 */
+    background-color: rgba(255, 255, 255, 0.95);
+    box-shadow: 0 0 0 10px rgba(0, 0, 0, 0.1);
+    /* 0 0 -> 正中央照射， 0: 水平 10px: 垂直 */
+}
+
+h2 {
+    text-align: center;
+    margin: 0;
+    font-weight: 200;
+}
+.plates {
+    margin: 0;
+    padding: 0;
+    text-align: left;
+    list-style: none;
+}
+.plates li {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+    padding: 10px 0;
+    font-weight: 100;
+    display: flex;   /* 设置弹性格式化上下文 */
+}
+.plates label {
+    flex: 1;
+    cursor: pointer;
+}
+.plates input {
+    display: none;
+}
+/* 相邻兄弟选择器 */
+.plates input + label:before {
+    content: "⬜️";
+    margin-right: 10px;
+}
+.plates input:checked + label:before {
+    content: "✅";
+    margin-right: 10px;
+}
+.add-items {
+    margin-top: 20px;
+}
+.add-items input {
+    padding: 10px;
+    outline: 5px solid rgba(14, 14, 211, 0.8);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
