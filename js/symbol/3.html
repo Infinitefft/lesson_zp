@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    
+
+    <script>
+        // 简答数据类型 BigInt()
+        // 构造函数，代码可读性
+        const wes = Symbol('Wes');
+        const person = Symbol('Wes');
+        // console.log(wes === person);
+        const classRoom = {
+            [Symbol('Mark')]: {
+                grade: 50,
+                gender: 'male',
+            },
+            [Symbol('Alice')]: {
+                grade: 80,
+                gender: 'female',
+            },
+            [Symbol('Alice')]: {
+                grade: 90,
+                gender: 'female',
+            },
+            "dl": [
+                "dl1",
+                "dl2",
+                "dl3",
+            ]
+        }
+        // console.log(classRoom);
+        // Symbol key 不可以被枚举
+        for (const person in classRoom) {
+            console.log(person, "/////");
+            console.log(classRoom[person]);
+        }
+
+        const syms = Object.getOwnPropertySymbols(classRoom);
+        console.log(syms);
+        const data = syms.map(sym => classRoom[sym]);
+        console.log(data);
+    </script>
+</body>
+</html>
