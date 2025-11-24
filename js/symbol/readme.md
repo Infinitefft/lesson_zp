@@ -29,4 +29,4 @@
     - 对象是动态的
     - Symbol key 不会被覆盖
     - for key in 不可以枚举 Symbol key
-    
+        Object.getOwnPropertySymbols()

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>事件委托</title>
+</head>
+<body>
+    <ul id="list">
+        <li>1</li>
+        <li>2</li>
+        <li>3</li>
+    </ul>
+
+
+    <script>
+        const lis = document.querySelectorAll('#list li');
+        console.log(lis);
+        // lis.addEventListener('click', function() {
+        //     console.log('-----');
+        // })
+        // for (let i = 0; i < lis.length; i++) {
+        //     lis[i].addEventListener('click', function() {
+        //         console.log(this.innerHTML);
+        //     })
+        // }
+        const ull = document.getElementById('list');
+        ull.addEventListener('click', function(event) {
+            // 任何一个 li 都会触发  n 个事件监听节省为一个
+            // console.log("--------");
+            console.log(event.target, event.target.innerHTML);
+        })
+    </script>
+</body>
+</html>
