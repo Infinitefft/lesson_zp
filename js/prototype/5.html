@@ -23,6 +23,11 @@
         console.log(xx.species);
         // 如果实例上有属性，就不会去原型上找
         console.log(xx, xx.species,  xx.__proto__);
+        // 这怎么会有呢？
+        console.log("--------");
+        console.log(xx.toString());
+        // Person.prototype 对象
+        console.log(xx.__proto__.__proto__);
     </script>
 </body>
 </html>

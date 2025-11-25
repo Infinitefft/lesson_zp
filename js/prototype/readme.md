@@ -26,3 +26,7 @@
         - 所有的对象都有一个 __proto__ 私有属性， 指向该对象的原型
         - 原型对象上有一个constructor 属性，指向构造函数
             由这个构造函数创建的实例，可以享用我们的原型对象
+
+- 任何对象都默认指向Object.prototype，除非 new 其他的构造函数生成的
+- Object.prototype 原型是null 停止查找
+    null 表示没有原型对象
