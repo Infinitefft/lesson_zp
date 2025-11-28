@@ -1,21 +1,17 @@
-# [cf1860C] [Game on Permutation](https://codeforces.com/problemset/problem/1860/C)
+# [2872] [可以被 K 整除连通块的最大数目](https://leetcode.cn/problems/maximum-number-of-k-divisible-components/description/)
 
 ## 题目描述
-Alice and Bob are playing a game. They have a permutation $p$ of size $n$ (a permutation of size $n$ is an array of size $n$ where each element from $1$ to $n$ occurs exactly once). They also have a chip, which can be placed on any element of the permutation.
+给你一棵 `n` 个节点的无向树，节点编号为 `0` 到 `n - 1` 。给你整数 `n` 和一个长度为 `n - 1` 的二维整数数组 `edges` ，其中 $edges[i] = [a_i, b_i]$ 表示树中节点 $a_i$ 和 $b_i$ 有一条边。
 
-Alice and Bob make alternating moves: Alice makes the first move, then Bob makes the second move, then Alice makes the third move, and so on. During the first move, Alice chooses any element of the permutation and places the chip on that element. During each of the next moves, the current player **has to** move the chip to any element that is simultaneously to the left and strictly less than the current element (i. e. if the chip is on the $i$\-th element, it can be moved to the $j$\-th element if $j < i$ and $p_j < p_i$). If a player cannot make a move (it is impossible to move the chip according to the rules of the game), that player **wins** the game.
+同时给你一个下标从 0 开始长度为 n 的整数数组 $values$ ，其中 $values[i]$ 是第 `i` 个节点的 值 。再给你一个整数 `k` 。
 
-Let's say that the $i$\-th element of the permutation is **lucky** if the following condition holds:
+你可以从树中删除一些边，也可以一条边也不删，得到若干连通块。一个 连通块的值 定义为连通块中所有节点值之和。如果所有连通块的值都可以被 $k$ `整除`，那么我们说这是一个 `合法分割` 。
 
--   if Alice places the chip on the $i$\-th element during her first move, she can win the game no matter how Bob plays (i. e. she has a winning strategy).
-
-You have to calculate the number of lucky elements in the permutation.
-
+请你返回所有`合法分割`中，连通块数目的`最大值` 。
 
 ---
 
 ## 题目大意
-给你一个数组 $p$，数组 $p$ 是一个长度为 $n$ 的排列。 $Alice$ 可以选择在 $i$ 处任意一个点放棋子，然后 $Bob$ 操作棋子，但是必须满足 $j < i , p_i < p_j$ ，每次来到的位置想要到另一个位置都需要满足这个条件。如果当前人无法进行移动，那么当前人就会输。如果 $Alice$ 选择的位置 $pos$ 使得 $Bob$ 是输的那么 $pos$ 就算是一个幸运的，就可以让答案加 $1$ 。
 
 
 ---
@@ -33,15 +29,18 @@ You have to calculate the number of lucky elements in the permutation.
 
 ## 我的思路
 
-**DP/博弈**
+**DFS**
 
-> 我们以博弈和状态转移的视角看待，如果来到的当前位置 $i$ ，如果无法向前进行移动，那么当前人就是输的。如果假设我们知道往前移动的所有位置都是必败的，并且可以往前移动，那么当前这个人是必赢的(当前人可以选择移动到`必败点`，然后另一个人操作，因为另一个人**来到的**是必败点，那么另一个人就输了)。
+> 如果一个两个连通块的都能被 $k$ 整除，那么这两个连通块的和也能被 $k$ 整除。反过来说如果 $x+y$ 不是 $k$ 的倍数，那么 $x$ 和 $y$ `不全是` $k$ 的倍数。不是 $k$ 的倍数的数，继续拆分，`始终存在一个`不是 $k$ 的倍数的数。
 
-> 因为我们是 $Alice$ 先操作，所以我们只需要判断当前位置 $i$ ，如果 $i$ 是必败点，那么 $i$ 就是一个幸运的位置。我们需要的条件有 `1.是否可以移动`  `2.如果可以移动，移动到的位置是否是必败点` 。因为我们需要枚举所有的位置，所以基本时间复杂度是 $O(n)$ ，那么如何 $O(1)$ 地获取判断信息呢？我们可以维护一个最小值，只要前缀最小值是小于当前位置也就是可以移动的。如果当前位置比必胜点中最小的那一个还要小那也就可以知道是必败的。
+> 对应到删边上，删除一条边后，我们把一个连通块分成了两个连通块。如果其中一个连通块的点权和不是 $k$ 的倍数，那么这个连通块无论如何分割，始终存在一个点权和不是 $k$ 的倍数的连通块。所以当且仅当这两个连通块的点权和都是 $k$ 的倍数，这条边才能删除。
 
-> 所以我们维护`前缀最小值`和`前缀最小必胜点`
+> 删除后，由于分割出的连通块点权和仍然是 $k$ 的倍数，所以可以继续分割，直到无法分割为止。换句话说，只要有能删除的边，就删除。
+
+## 作者：[灵茶山艾府](https://leetcode.cn/problems/maximum-number-of-k-divisible-components/solutions/2464687/pan-duan-zi-shu-dian-quan-he-shi-fou-wei-uvsg/)
 
 
+ 
 ---
 
 ## 时间复杂度
@@ -59,119 +58,86 @@ $O()$
 ## Go 代码
 
 ```Go
-package main
+func maxKDivisibleComponents(n int, edges [][]int, values []int, k int) (ans int) {
+    g := make([][]int, n)
+    for _, e := range edges {
+        x, y := e[0], e[1]
+        g[x] = append(g[x], y)
+        g[y] = append(g[y], x)
+    }
 
-import (
-	"bufio"
-	. "fmt"
-	"io"
-	"os"
-)
-
-const inf = 0x3f3f3f3f
-
-type (
-	i8  = int8
-	i64 = int64
-	i32 = int32
-	u64 = uint64
-	u32 = uint32
-	f32 = float32
-	f64 = float64
-)
-
-func solve(in io.Reader, out io.Writer) {
-	var T int
-	for Fscan(in, &T); T > 0; T-- {
-		var n int
-		Fscan(in, &n)
-		var v int
-		ans := 0
-		mn, mnwin := inf, inf
-		for range n {
-			Fscan(in, &v)
-			if mn < v && v < mnwin {
-				ans++
-				mnwin = v
-			}
-			mn = min(mn, v)
-		}
-		Fprintln(out, ans)
-	}
+    var dfs func(int, int) int
+    dfs = func(x, fa int) int {
+        v := values[x]
+        for _, y := range g[x] {
+            if y != fa {
+                v += dfs(y, x)
+            }
+        }
+        if v % k == 0 {
+            ans++
+        }
+        return v
+    }
+    dfs(0, -1)
+    return
 }
-
-func abs(x int) int {
-	if x < 0 {
-		return -x
-	}
-	return x
-}
-
-func abs64(x i64) i64 {
-	if x < 0 {
-		return -x
-	}
-	return x
-}
-
-func gcd(x, y int) int {
-	for y != 0 {
-		x, y = y, x%y
-	}
-	return x
-}
-
-func max64(x, y i64) i64 {
-	if x > y {
-		return x
-	}
-	return y
-}
-
-func min64(x, y i64) i64 {
-	if x < y {
-		return x
-	}
-	return y
-}
-
-func main() {
-	solve(bufio.NewReader(os.Stdin), os.Stdout)
-}
-
 ```
 ---
 
 ## C++ 代码
 
 ```C++
-
+class Solution {
+public:
+    int maxKDivisibleComponents(int n, vector<vector<int>>& edges, vector<int>& values, int k) {
+        vector<vector<int>> g(n);
+        for (auto e : edges) {
+            int x = e[0], y = e[1];
+            g[x].push_back(y);
+            g[y].push_back(x);
+        }
+        int ans = 0;
+        auto dfs = [&](this auto &dfs, int x, int fa) -> long long {
+            long long v = values[x];
+            for (auto y : g[x]) {
+                if (y != fa) {
+                    v += dfs(y, x);
+                }
+            }
+            if (v % k == 0) {
+                ans++;
+            }
+            return v;
+        };
+        dfs(0, -1);
+        return ans;
+    }
+};
 ```
 ---
 ## Python 代码
 
 ```Python
-import sys
-input = sys.stdin.readline
-
-def solve():
-    T = int(input())
-    for _ in range(T):
-        n = int(input())
-        a = list(map(int, input().split()))
-
+class Solution:
+    def maxKDivisibleComponents(self, n: int, edges: List[List[int]], values: List[int], k: int) -> int:
+        g = [[] for _ in range(n)]
+        for x, y in edges:
+            g[x].append(y)
+            g[y].append(x)
         ans = 0
-        mn, mnwin = float('inf'), float('inf')
-        for v in a:
-            if mn < v and v < mnwin:
+        def dfs(x: int, fa: int) -> int:
+            v = values[x]
+            for y in g[x]:
+                if y != fa:
+                    v += dfs(y, x)
+            nonlocal ans
+            if v % k == 0:
                 ans += 1
-                mnwin = v
-            mn = min(mn, v)
-
-        print(ans)
-
-if __name__ == "__main__":
-    solve()
+            return v
+        
+        dfs(0, -1)
+        return ans
 ```
 
 ---
@@ -179,5 +145,34 @@ if __name__ == "__main__":
 ## JavaScript 代码
 
 ```JavaScript
+/**
+ * @param {number} n
+ * @param {number[][]} edges
+ * @param {number[]} values
+ * @param {number} k
+ * @return {number}
+ */
+var maxKDivisibleComponents = function(n, edges, values, k) {
+    const g = Array.from({ length: n }, () => []);
+    for (const [x, y] of edges) {
+        g[x].push(y);
+        g[y].push(x);
+    }
 
+    let ans = 0;
+
+    function dfs(x, fa) {
+        let sum = values[x];
+        for (const y of g[x]) {
+            if (y !== fa) {
+                sum += dfs(y, x);
+            }
+        }
+        ans += sum % k === 0 ? 1 : 0;
+        return sum;
+    }
+
+    dfs(0, -1);
+    return ans;
+};
 ```
