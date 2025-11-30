@@ -1,13 +1,12 @@
-# [2872] [可以被 K 整除连通块的最大数目](https://leetcode.cn/problems/maximum-number-of-k-divisible-components/description/)
+# [LeetCode2376] [统计特殊整数](https://leetcode.cn/problems/count-special-integers/description/)
 
 ## 题目描述
-给你一棵 `n` 个节点的无向树，节点编号为 `0` 到 `n - 1` 。给你整数 `n` 和一个长度为 `n - 1` 的二维整数数组 `edges` ，其中 $edges[i] = [a_i, b_i]$ 表示树中节点 $a_i$ 和 $b_i$ 有一条边。
-
-同时给你一个下标从 0 开始长度为 n 的整数数组 $values$ ，其中 $values[i]$ 是第 `i` 个节点的 值 。再给你一个整数 `k` 。
-
-你可以从树中删除一些边，也可以一条边也不删，得到若干连通块。一个 连通块的值 定义为连通块中所有节点值之和。如果所有连通块的值都可以被 $k$ `整除`，那么我们说这是一个 `合法分割` 。
-
-请你返回所有`合法分割`中，连通块数目的`最大值` 。
+给你一个整数数组 nums 和一个整数 k。
+在一次操作中，你可以恰好将 nums 中的某个元素 增加或减少 k 。
+还给定一个二维整数数组 queries，其中每个 queries[i] = [li, ri]。
+对于每个查询，找到将 子数组 $nums[l_i..r_i]$ 中的 所有 元素变为相等所需的 最小 操作次数。如果无法实现，返回 -1。
+返回一个数组 ans，其中 ans[i] 是第 i 个查询的答案。
+子数组 是数组中一个连续、非空 的元素序列。
 
 ---
 
@@ -29,15 +28,9 @@
 
 ## 我的思路
 
-**DFS**
+**数位DP**
 
-> 如果一个两个连通块的都能被 $k$ 整除，那么这两个连通块的和也能被 $k$ 整除。反过来说如果 $x+y$ 不是 $k$ 的倍数，那么 $x$ 和 $y$ `不全是` $k$ 的倍数。不是 $k$ 的倍数的数，继续拆分，`始终存在一个`不是 $k$ 的倍数的数。
-
-> 对应到删边上，删除一条边后，我们把一个连通块分成了两个连通块。如果其中一个连通块的点权和不是 $k$ 的倍数，那么这个连通块无论如何分割，始终存在一个点权和不是 $k$ 的倍数的连通块。所以当且仅当这两个连通块的点权和都是 $k$ 的倍数，这条边才能删除。
-
-> 删除后，由于分割出的连通块点权和仍然是 $k$ 的倍数，所以可以继续分割，直到无法分割为止。换句话说，只要有能删除的边，就删除。
-
-## 作者：[灵茶山艾府](https://leetcode.cn/problems/maximum-number-of-k-divisible-components/solutions/2464687/pan-duan-zi-shu-dian-quan-he-shi-fou-wei-uvsg/)
+> 模板见Python
 
 
  
@@ -58,29 +51,49 @@ $O()$
 ## Go 代码
 
 ```Go
-func maxKDivisibleComponents(n int, edges [][]int, values []int, k int) (ans int) {
-    g := make([][]int, n)
-    for _, e := range edges {
-        x, y := e[0], e[1]
-        g[x] = append(g[x], y)
-        g[y] = append(g[y], x)
+func countSpecialNumbers(n int) int {
+    s := strconv.Itoa(n)
+    m := len(s)
+    memo := make([][1 << 10]int, m)
+    for i := range memo {
+        for j := range memo[i] {
+            memo[i][j] = -1   // -1 表示没有计算过
+        }
     }
-
-    var dfs func(int, int) int
-    dfs = func(x, fa int) int {
-        v := values[x]
-        for _, y := range g[x] {
-            if y != fa {
-                v += dfs(y, x)
+    var dfs func(int, int, bool, bool) int
+    dfs = func(i, mask int, isLimit, isNum bool) (res int) {
+        if i == m {
+            if isNum {
+                return 1
+            }
+            return 0
+        }
+        if !isLimit && isNum {
+            p := &memo[i][mask]
+            if *p >= 0 {   // 计算过
+                return *p
+            }
+            defer func() { *p = res }()   // 记忆化
+        }
+        if !isNum {   // 可以跳过当前数位
+            res += dfs(i+1, mask, false, false)
+        }
+        d := 0
+        if !isNum {
+            d = 1    // 如果前面没有填数字，必须从 1 开始（因为不能有前导零）
+        }
+        hi := 9
+        if isLimit {
+            hi = int(s[i] - '0')  // 如果前面填的数字都和 n 的一样，那么这一位至多填数字 s[i]（否则就超过n了）
+        }
+        for ; d <= hi; d++ {
+            if mask>>d&1 == 0 {  // d 不在 mask 中，说明之前没有填过 d
+                res += dfs(i+1, mask|1<<d, isLimit && d == hi, true)
             }
         }
-        if v % k == 0 {
-            ans++
-        }
-        return v
+        return
     }
-    dfs(0, -1)
-    return
+    return dfs(0, 0, true, false)
 }
 ```
 ---
@@ -90,28 +103,36 @@ func maxKDivisibleComponents(n int, edges [][]int, values []int, k int) (ans int
 ```C++
 class Solution {
 public:
-    int maxKDivisibleComponents(int n, vector<vector<int>>& edges, vector<int>& values, int k) {
-        vector<vector<int>> g(n);
-        for (auto e : edges) {
-            int x = e[0], y = e[1];
-            g[x].push_back(y);
-            g[y].push_back(x);
-        }
-        int ans = 0;
-        auto dfs = [&](this auto &dfs, int x, int fa) -> long long {
-            long long v = values[x];
-            for (auto y : g[x]) {
-                if (y != fa) {
-                    v += dfs(y, x);
+    int countSpecialNumbers(int n) {
+        string s = to_string(n);
+        int m = s.length();
+        vector<vector<int>> memo(m, vector<int>(1 << 10, -1)); // -1 表示没有计算过
+        auto dfs = [&](auto&& dfs, int i, int mask, bool isLimit, bool isNum) -> int {
+            if (i == m) {
+                return isNum; // isNum 为 true 表示得到了一个合法数字
+            }
+            if (!isLimit && isNum && memo[i][mask] != -1) {
+                return memo[i][mask]; // 之前计算过
+            }
+            int res = 0;
+            if (!isNum) { // 可以跳过当前数位
+                res = dfs(dfs, i + 1, mask, false, false);
+            }
+            // 如果前面填的数字都和 n 的一样，那么这一位至多填数字 s[i]
+            int up = isLimit ? s[i] - '0' : 9;
+            // 枚举要填入的数字 d
+            // 如果前面没有填数字，则必须从 1 开始（因为不能有前导零）
+            for (int d = isNum ? 0 : 1; d <= up; d++) {
+                if ((mask >> d & 1) == 0) { // d 不在 mask 中，说明之前没有填过 d
+                    res += dfs(dfs, i + 1, mask | (1 << d), isLimit && d == up, true);
                 }
             }
-            if (v % k == 0) {
-                ans++;
+            if (!isLimit && isNum) {
+                memo[i][mask] = res; // 记忆化
             }
-            return v;
+            return res;
         };
-        dfs(0, -1);
-        return ans;
+        return dfs(dfs, 0, 0, true, false);
     }
 };
 ```
@@ -120,24 +141,24 @@ public:
 
 ```Python
 class Solution:
-    def maxKDivisibleComponents(self, n: int, edges: List[List[int]], values: List[int], k: int) -> int:
-        g = [[] for _ in range(n)]
-        for x, y in edges:
-            g[x].append(y)
-            g[y].append(x)
-        ans = 0
-        def dfs(x: int, fa: int) -> int:
-            v = values[x]
-            for y in g[x]:
-                if y != fa:
-                    v += dfs(y, x)
-            nonlocal ans
-            if v % k == 0:
-                ans += 1
-            return v
+    def countSpecialNumbers(self, n: int) -> int:
+        s = str(n)
+        @cache
+        # is_limit = True 前面的数刚好是s[i-1], isNum = True前面填过数字
+        def dfs(i: int, mask: int, is_limit: bool, isNum: bool) -> int:
+            if i == len(s):
+                return 1 if isNum else 0
+            res = 0
+            if not isNum:      # 前面没有填过数字，可以选择跳过当前数位
+                res = dfs(i + 1, mask, False, False)
+            lo = 0 if isNum else 1   # 如果前面没有填过数字，那么当前位要填数字的话必须从1开始
+            hi = int(s[i]) if is_limit else 9  # 如果前面所有数位都和n一样，那么当前位一定要小于等于int(s[i])，否则就比n大了
+            for d in range(lo, hi+1):
+                if mask >> d & 1 == 0:   # d 不在 mask 中，说明之前没有填过 d
+                    res += dfs(i + 1, mask | (1 << d), is_limit and d == hi, True)
+            return res
         
-        dfs(0, -1)
-        return ans
+        return dfs(0, 0, True, False)
 ```
 
 ---
@@ -145,34 +166,4 @@ class Solution:
 ## JavaScript 代码
 
 ```JavaScript
-/**
- * @param {number} n
- * @param {number[][]} edges
- * @param {number[]} values
- * @param {number} k
- * @return {number}
- */
-var maxKDivisibleComponents = function(n, edges, values, k) {
-    const g = Array.from({ length: n }, () => []);
-    for (const [x, y] of edges) {
-        g[x].push(y);
-        g[y].push(x);
-    }
-
-    let ans = 0;
-
-    function dfs(x, fa) {
-        let sum = values[x];
-        for (const y of g[x]) {
-            if (y !== fa) {
-                sum += dfs(y, x);
-            }
-        }
-        ans += sum % k === 0 ? 1 : 0;
-        return sum;
-    }
-
-    dfs(0, -1);
-    return ans;
-};
 ```
