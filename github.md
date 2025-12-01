@@ -1,23 +1,19 @@
-# [LeetCode2376] [统计特殊整数](https://leetcode.cn/problems/count-special-integers/description/)
+# [LeetCode1012] [至少有 1 位重复的数字](https://leetcode.cn/problems/numbers-with-repeated-digits/)
 
 ## 题目描述
-给你一个整数数组 nums 和一个整数 k。
-在一次操作中，你可以恰好将 nums 中的某个元素 增加或减少 k 。
-还给定一个二维整数数组 queries，其中每个 queries[i] = [li, ri]。
-对于每个查询，找到将 子数组 $nums[l_i..r_i]$ 中的 所有 元素变为相等所需的 最小 操作次数。如果无法实现，返回 -1。
-返回一个数组 ans，其中 ans[i] 是第 i 个查询的答案。
-子数组 是数组中一个连续、非空 的元素序列。
+给定正整数 `n` ，返回在 `[1, n]` 范围内具有 **至少** `1` 位 `重复数字`的正整数的个数。
 
 ---
 
 ## 题目大意
 
 
+
 ---
 
 ## 输入
 
-> 
+> $1 <= n <= 10^9$
 
 
 ## 输出
@@ -30,8 +26,9 @@
 
 **数位DP**
 
-> 模板见Python
+> 正难则反，我们可以计算出在 `[1, n]` 范围内 **没有** 重复数字的正整数的个数，然后用 `n` 减去这个个数，就得到了在 `[1, n]` 范围内具有 **至少** `1` 位 `重复数字`的正整数的个数。
 
+> 统计无重复的可以看[LeetCode2376. 统计特殊整数](https://leetcode.cn/problems/count-special-integers/description/)， 题解：[LeetCode2376](LeetCode2376.md)
 
  
 ---
@@ -51,7 +48,7 @@ $O()$
 ## Go 代码
 
 ```Go
-func countSpecialNumbers(n int) int {
+func numDupDigitsAtMostN(n int) int {
     s := strconv.Itoa(n)
     m := len(s)
     memo := make([][1 << 10]int, m)
@@ -93,7 +90,7 @@ func countSpecialNumbers(n int) int {
         }
         return
     }
-    return dfs(0, 0, true, false)
+    return n - dfs(0, 0, true, false)
 }
 ```
 ---
@@ -103,7 +100,7 @@ func countSpecialNumbers(n int) int {
 ```C++
 class Solution {
 public:
-    int countSpecialNumbers(int n) {
+    int numDupDigitsAtMostN(int n) {
         string s = to_string(n);
         int m = s.length();
         vector<vector<int>> memo(m, vector<int>(1 << 10, -1)); // -1 表示没有计算过
@@ -132,7 +129,7 @@ public:
             }
             return res;
         };
-        return dfs(dfs, 0, 0, true, false);
+        return n - dfs(dfs, 0, 0, true, false);
     }
 };
 ```
@@ -141,7 +138,7 @@ public:
 
 ```Python
 class Solution:
-    def countSpecialNumbers(self, n: int) -> int:
+    def numDupDigitsAtMostN(self, n: int) -> int:
         s = str(n)
         @cache
         # is_limit = True 前面的数刚好是s[i-1], isNum = True前面填过数字
@@ -158,7 +155,7 @@ class Solution:
                     res += dfs(i + 1, mask | (1 << d), is_limit and d == hi, True)
             return res
         
-        return dfs(0, 0, True, False)
+        return n - dfs(0, 0, True, False)
 ```
 
 ---

@@ -1,0 +1,19 @@
+<script>
+    // 解决了代码重复的问题
+    // 封装了实例化的过程
+    function Cat(name, color) {
+        // this 由运行的时候决定的
+        console.log(this);  // 空对象
+        this.name = name;   // 对象的实例化
+        this.color = color;
+    }
+    // 普通函数调用的时候，this指向window
+    Cat('ggg', '橘色');   // 函数运行
+    // new Object() 完全是个空对象 {}
+    const cat1 = new Cat('hhh', '白色');   // this 指向实例对象 空对象
+    console.log(cat1);
+    const cat2 = new Cat('fff', '黄色');
+    console.log(cat1.constructor === cat2.constructor);
+    // 实例判断 instanceof
+    console.log(cat1 instanceof Cat);
+</script>

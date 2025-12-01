@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    
+    <script>
+        // es6 提供了class 关键字，让我们用OOP思想写JS
+        // 其实只是语法糖，底层仍然是基于原型的
+        class Cat {
+            constructor(name, color) {
+                this.name = name;
+                this.color = color;
+            }
+            eat() {
+                console.log("eat fish");
+            }
+        }
+        const cat1 = new Cat('ggg', '黑色');
+        console.log(cat1);
+        cat1.eat();
+        console.log(
+            cat1.__proto__, 
+            cat1.__proto__.constructor,
+            cat1.__proto__.__proto__,
+            cat1.__proto__.__proto__.__proto__
+        );
+    </script>
+</body>
+</html>
