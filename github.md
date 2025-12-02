@@ -1,19 +1,33 @@
-# [LeetCode1012] [至少有 1 位重复的数字](https://leetcode.cn/problems/numbers-with-repeated-digits/)
+# [cf1856C] [To Become Max](https://codeforces.com/problemset/problem/1856/C)
 
 ## 题目描述
-给定正整数 `n` ，返回在 `[1, n]` 范围内具有 **至少** `1` 位 `重复数字`的正整数的个数。
+You are given an array of integers $a$ of length $n$.
+
+In one operation you:
+
+-   Choose an index $i$ such that $1 \le i \le n - 1$ and $a_i \le a_{i + 1}$.
+-   Increase $a_i$ by $1$.
+
+Find the maximum possible value of $\max(a_1, a_2, \ldots a_n)$ that you can get after performing this operation at most $k$ times.
 
 ---
 
 ## 题目大意
+给您一个长度为 $n$ 的整数数组 $a$ 。
 
+在一次操作中，您：
+
+- 选择索引 $i$ ，使得 $1 \le i \le n - 1$ 和 $a_i \le a_{i + 1}$ 。
+- 将 $a_i$ 增加 $1$ 。
+
+求执行此操作最多 $k$ 次后可以获得的最大可能值 $\max(a_1, a_2, \ldots a_n)$ 。
 
 
 ---
 
 ## 输入
 
-> $1 <= n <= 10^9$
+
 
 
 ## 输出
@@ -24,13 +38,15 @@
 
 ## 我的思路
 
-**数位DP**
+**二分答案**
 
-> 正难则反，我们可以计算出在 `[1, n]` 范围内 **没有** 重复数字的正整数的个数，然后用 `n` 减去这个个数，就得到了在 `[1, n]` 范围内具有 **至少** `1` 位 `重复数字`的正整数的个数。
+> 二分猜测可以得到的最大值，由于每次操作都是**相邻**的元素且得**单调不减**，我们可以通过样例可以发现最大值出现的**区间一定是单调不增**的，且**最大值**一定是枚举区间的**第一个**。
 
-> 统计无重复的可以看[LeetCode2376. 统计特殊整数](https://leetcode.cn/problems/count-special-integers/description/)， 题解：[LeetCode2376](LeetCode2376.md)
+> 那么我们验证猜测答案的可行性的方法即为从枚举区间的第一个位置开始对 $kk$ 进行减少（为了不改变 $k$ ，我们每次枚举用一个临时变量 $kk$ 来验证），并且使用一个 $tar$ 表示当前位置需要变成最终单调不增序列的目标值，每次操作后当前位置 $tar$ 就可以减一（可以通过样例验证），如果 出现了 $a[i] >= tar$ （说明当前位置已经就是最终值了）那么就可以说明我们验证的答案是可行的，即 $kk$ 有剩余。如果枚举时 $kk < 0$ 了，直接 $break$ 就行。
 
- 
+
+
+
 ---
 
 ## 时间复杂度
@@ -48,114 +64,111 @@ $O()$
 ## Go 代码
 
 ```Go
-func numDupDigitsAtMostN(n int) int {
-    s := strconv.Itoa(n)
-    m := len(s)
-    memo := make([][1 << 10]int, m)
-    for i := range memo {
-        for j := range memo[i] {
-            memo[i][j] = -1   // -1 表示没有计算过
-        }
-    }
-    var dfs func(int, int, bool, bool) int
-    dfs = func(i, mask int, isLimit, isNum bool) (res int) {
-        if i == m {
-            if isNum {
-                return 1
-            }
-            return 0
-        }
-        if !isLimit && isNum {
-            p := &memo[i][mask]
-            if *p >= 0 {   // 计算过
-                return *p
-            }
-            defer func() { *p = res }()   // 记忆化
-        }
-        if !isNum {   // 可以跳过当前数位
-            res += dfs(i+1, mask, false, false)
-        }
-        d := 0
-        if !isNum {
-            d = 1    // 如果前面没有填数字，必须从 1 开始（因为不能有前导零）
-        }
-        hi := 9
-        if isLimit {
-            hi = int(s[i] - '0')  // 如果前面填的数字都和 n 的一样，那么这一位至多填数字 s[i]（否则就超过n了）
-        }
-        for ; d <= hi; d++ {
-            if mask>>d&1 == 0 {  // d 不在 mask 中，说明之前没有填过 d
-                res += dfs(i+1, mask|1<<d, isLimit && d == hi, true)
-            }
-        }
-        return
-    }
-    return n - dfs(0, 0, true, false)
+package main
+
+import (
+	"bufio"
+	. "fmt"
+	"io"
+	"os"
+	"slices"
+	"sort"
+)
+
+const inf = 0x3f3f3f3f
+
+type (
+	i8  = int8
+	i64 = int64
+	i32 = int32
+	u64 = uint64
+	u32 = uint32
+	f32 = float32
+	f64 = float64
+)
+
+func solve(in io.Reader, out io.Writer) {
+	var T int
+	for Fscan(in, &T); T > 0; T-- {
+		var n, k int
+		Fscan(in, &n, &k)
+		a := make([]int, n)
+		for i := range a {
+			Fscan(in, &a[i])
+		}
+		mx := slices.Max(a)
+		ans := sort.Search(mx+k+1, func(mx int) bool {
+			for i := range a {
+				kk := k
+				tar := mx
+				for _, v := range a[i:] {
+					if v >= tar {
+						return false
+					}
+					kk -= tar - v
+					if kk < 0 {
+						break
+					}
+					tar--
+				}
+			}
+			return true
+		}) - 1
+		ans = max(ans, slices.Max(a))
+		Fprintln(out, ans)
+	}
 }
+
+func abs(x int) int {
+	if x < 0 {
+		return -x
+	}
+	return x
+}
+
+func abs64(x i64) i64 {
+	if x < 0 {
+		return -x
+	}
+	return x
+}
+
+func gcd(x, y int) int {
+	for y != 0 {
+		x, y = y, x%y
+	}
+	return x
+}
+
+func max64(x, y i64) i64 {
+	if x > y {
+		return x
+	}
+	return y
+}
+
+func min64(x, y i64) i64 {
+	if x < y {
+		return x
+	}
+	return y
+}
+
+func main() {
+	solve(bufio.NewReader(os.Stdin), os.Stdout)
+}
+
 ```
 ---
 
 ## C++ 代码
 
 ```C++
-class Solution {
-public:
-    int numDupDigitsAtMostN(int n) {
-        string s = to_string(n);
-        int m = s.length();
-        vector<vector<int>> memo(m, vector<int>(1 << 10, -1)); // -1 表示没有计算过
-        auto dfs = [&](auto&& dfs, int i, int mask, bool isLimit, bool isNum) -> int {
-            if (i == m) {
-                return isNum; // isNum 为 true 表示得到了一个合法数字
-            }
-            if (!isLimit && isNum && memo[i][mask] != -1) {
-                return memo[i][mask]; // 之前计算过
-            }
-            int res = 0;
-            if (!isNum) { // 可以跳过当前数位
-                res = dfs(dfs, i + 1, mask, false, false);
-            }
-            // 如果前面填的数字都和 n 的一样，那么这一位至多填数字 s[i]
-            int up = isLimit ? s[i] - '0' : 9;
-            // 枚举要填入的数字 d
-            // 如果前面没有填数字，则必须从 1 开始（因为不能有前导零）
-            for (int d = isNum ? 0 : 1; d <= up; d++) {
-                if ((mask >> d & 1) == 0) { // d 不在 mask 中，说明之前没有填过 d
-                    res += dfs(dfs, i + 1, mask | (1 << d), isLimit && d == up, true);
-                }
-            }
-            if (!isLimit && isNum) {
-                memo[i][mask] = res; // 记忆化
-            }
-            return res;
-        };
-        return n - dfs(dfs, 0, 0, true, false);
-    }
-};
 ```
 ---
 ## Python 代码
 
 ```Python
-class Solution:
-    def numDupDigitsAtMostN(self, n: int) -> int:
-        s = str(n)
-        @cache
-        # is_limit = True 前面的数刚好是s[i-1], isNum = True前面填过数字
-        def dfs(i: int, mask: int, is_limit: bool, isNum: bool) -> int:
-            if i == len(s):
-                return 1 if isNum else 0
-            res = 0
-            if not isNum:      # 前面没有填过数字，可以选择跳过当前数位
-                res = dfs(i + 1, mask, False, False)
-            lo = 0 if isNum else 1   # 如果前面没有填过数字，那么当前位要填数字的话必须从1开始
-            hi = int(s[i]) if is_limit else 9  # 如果前面所有数位都和n一样，那么当前位一定要小于等于int(s[i])，否则就比n大了
-            for d in range(lo, hi+1):
-                if mask >> d & 1 == 0:   # d 不在 mask 中，说明之前没有填过 d
-                    res += dfs(i + 1, mask | (1 << d), is_limit and d == hi, True)
-            return res
-        
-        return n - dfs(0, 0, True, False)
 ```
 
 ---
