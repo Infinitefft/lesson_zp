@@ -1,0 +1,36 @@
+
+<script>
+    'use strict';
+    // bar 是一个对象，定义在全局作用域的变量环境
+    // 堆内存中 在变量环境的栈内存中只是对象在堆内存中的地址
+    var bar = {
+        myName: 'bar',
+        // 在全局作用域中对象里面的函数，也是在全局定义的
+        // 
+        printName: function() {
+            // 变量的查找？
+            // 变量的查找规则 找自己，沿着作用域链查找 变量的查找路径就是作用域链
+            // outer 词法作用域链 由声明的位置决定
+            // 自由变量 在函数内部使用，但既不是函数的参数，也不是局部变量
+            // 而是来自外层作用域的变量
+            console.log("bar1", myName);
+            // console.log(bar.myName);
+            // this
+            // window 前端全局对象
+            console.log("bar2:", this);
+            console.log("bar3:", this.myName);
+        }
+    }
+    function foo() {
+        let myName = 'foo';
+        return bar.printName;
+    }
+    // 全局块级作用域里词法环境里的变量
+    // 指向函数调用
+    var myName = 'global';
+    // var myName = 'global';   var 声明的会挂在 window 上
+    let _printName = foo();   // let 声明不会挂在 window 上
+    _printName();   // 作为普通函数来运行，this为默认绑定（默认绑定this指向全局对象）
+    console.log("----", _printName);
+    bar.printName();  // 作为对象的方法被调用，this指向调用对象（隐式绑定）
+</script>
