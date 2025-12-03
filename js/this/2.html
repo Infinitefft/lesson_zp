@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    
+
+
+    <script>
+        // function foo () {
+        //     console.log(this);
+        // }
+        // foo();  // 普通函数运行时，指向window  window.foo();
+        // foo 声明在全局作用域变量环境，挂载在window 对向上，污染了
+
+        let bar = {
+            myName: 'bar',
+            test1: 1,
+        };
+        function foo() {
+            this.myName = 'foo';
+        }
+        // call 接受指定this 为第一个参数，并且运行函数
+        foo.call(bar);  // this 被指定为 bar
+        console.log(bar);
+        var myObj = {
+            name: 'myObj',
+            showThis: function() {
+                console.log(this);
+            }
+        }
+        myObj.showThis();
+    </script>
+</body>
+</html>
