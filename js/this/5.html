@@ -10,9 +10,22 @@
 
 
     <script>
-        document.getElementById('link').addEventListener('click', function() {
-            console.log(this);
-        })
+        // document.getElementById('link').addEventListener('click', function() {
+        //     console.log(this);
+        // })
+        var name = 'window';
+        var A = {
+            name: 'A',
+            say: function() {
+                console.log(this.name);
+            }
+        };
+        var B = {
+            name: 'B',
+            speak: A.say
+        };
+        B.speak(); // ?
+        A.say.call(B); // ?
     </script>
 </body>
 </html>
