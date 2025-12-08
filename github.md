@@ -1,19 +1,24 @@
-# [cf1838C] [No Prime Differences](https://codeforces.com/problemset/problem/1838/C)
+# [cf2084C] [You Soared Afar With Grace](https://codeforces.com/problemset/problem/2084/C)
 
 ## 题目描述
-You are given integers $n$ and $m$. Fill an $n$ by $m$ grid with the integers $1$ through $n\cdot m$, in such a way that for any two adjacent cells in the grid, the absolute difference of the values in those cells is not a prime number. Two cells in the grid are considered adjacent if they share a side.
+You are given a permutation $a$ and $b$ of length $n$$^{\text{∗}}$. You can perform the following operation at most $n$ times:
 
-![](https://espresso.codeforces.com/58a8ad463a03a7b533c80c7cc8f71f56bd745256.png)
+-   Choose two indices $i$ and $j$ ($1 \le i, j \le n$, $i \ne j$), swap $a_i$ with $a_j$, swap $b_i$ with $b_j$.
 
-It can be shown that under the given constraints, there is always a solution.
+Determine whether $a$ and $b$ can be reverses of each other after operations. In other words, for each $i = 1, 2, \ldots, n$, $a_i = b_{n + 1 - i}$.
+
+If it is possible, output any valid sequence of operations. Otherwise, output $-1$.
+
+$^{\text{∗}}$A permutation of length $n$ is an array consisting of $n$ distinct integers from $1$ to $n$ in arbitrary order. For example, $[2,3,1,5,4]$ is a permutation, but $[1,2,2]$ is not a permutation ($2$ appears twice in the array), and $[1,3,4]$ is also not a permutation ($n=3$ but there is $4$ in the array).
+
+
 
 
 ---
 
 ## 题目大意
-给你两个数 $n, m$ ，请你构造一个 `n 行 m 列`的矩阵，其中矩阵必须满足以下条件：
-- 矩阵中的每个数都在 $[1, n \cdot m]$ 范围内（不能重复，即将 $1$ 到 $n * m$ 每个数都填入矩阵中）。
-- 对于矩阵中的任意两个相邻（上下左右）的数，它们的绝对差值不是一个质数。
+给你两个 $a, b$ 长为 $n$ 的**排列**，你可以操作**最多** $n$ 次，每次操作中你可以任意选择 $i, j$ 两个下标，**同时**让 $a_i$ 与 $a_j$ 交换以及 $b_i$ 与 $b_j$ 交换。如果你能使得 $a$ 变成 $b$ 的**逆序**，一行输出**操作的次数** $m$ ，以及 $m$ 行操作的$两个下标$。否则输出 $-1$ 。
+
 
 ---
 
@@ -30,40 +35,14 @@ It can be shown that under the given constraints, there is always a solution.
 
 ## 我的思路
 
-**思维**
+**构造**
 
-可以先看个例子：假设 $n = 5, m = 7$ ，我们从1开始直接填数字则构造的矩阵为：
+> 观察到如果要交换的 $a_i == b_j$ **且** $a_j == b_i$ 才可能完成，**否则一定失败**。如果 $a_i == b_i$ 并且 $n$ 为**奇数**，那么必须交换 $i$ 与 $ (n + 1) / 2$ 。
+通过分析该操作的结构，我们可以看到每对 $(a_i, b_i)$ 被交换在一起，这意味着给定的 $a_i$ 对应的 $b_i$ 保持不变。
 
-```
-1  2  3  4  5  6  7
-8  9 10 11 12 13 14
-15 16 17 18 19 20 21
-22 23 24 25 26 27 28
-29 30 31 32 33 34 35
-```
-> 可以看到我们每个数字左右都是符合要求的，相差为 $1$ （非素数）。但是我们每个数上下都差了一个 7 (即 m )。如果我们的 m 不是一个素数的话我们直接这样排列是可以的，如果是一个素数呢？
+> 至于构造方法，首先，如果 $n$ 是奇数，则将pair where $a_i = b_i$ 移动到位置 $\frac{n + 1}{2}$ 。然后，让 $p_i$ 表示 $i$ 在 $a$ 中的位置。迭代 $i = 1, 2, \ldots, \left\lfloor\frac{n}{2}\right\rfloor$ ，交换位置 $p_{b_i}$ 和 $n - i + 1$ 。这确保了当我们到达 $i$ 时，对于每个 $1 \leq j \leq i$ ，条件 $a_j = b_{n - j + 1}$ 和 $a_{n - j + 1} = b_j$ 成立。这个过程最多需要 $\left\lceil\frac{n}{2}\right\rceil$ 次操作。
 
-> 如果我们上下都相差 m 的倍数我们这样的按顺序排列就是可以的。我们可以将行调换位置。例如：
 
-```
-1  2  3  4  5  6  7      （1）
-8  9 10 11 12 13 14      （2）
-15 16 17 18 19 20 21      （3）
-22 23 24 25 26 27 28      （4）
-29 30 31 32 33 34 35      （5）
-```
-
-> 我们可以让前 n / 2 （下取整）不变，后面的 n - n / 2 （下取整）行穿插到前面行中即可。例如：
-
-```
-15 16 17 18 19 20 21      （3）
-1  2  3  4  5  6  7      （1）
-22 23 24 25 26 27 28      （4）
-8  9 10 11 12 13 14      （2）
-29 30 31 32 33 34 35      （5）
-```
-
-> 可以看到这样每行都可以符合要求，相差为 $m$ 的倍数（无论 $m$ 是素数还是合数）。请注意，因为我们只是重新排列上述解决方案中的行，所以所有水平差异都是 $1$ ，垂直差异是 $m≥4$ 的**倍数**。因此，只要没有任何垂直差异等于 $m$ 本身，它们就一定是符合的。
 
 ---
 
@@ -82,6 +61,138 @@ $O()$
 ## Go 代码
 
 ```Go
+package main
+
+import (
+	"bufio"
+	. "fmt"
+	"io"
+	"os"
+)
+
+const inf = 0x3f3f3f3f
+
+type (
+	i8  = int8
+	i64 = int64
+	i32 = int32
+	u64 = uint64
+	u32 = uint32
+	f32 = float32
+	f64 = float64
+)
+
+func solve(in io.Reader, out io.Writer) {
+	var T int
+	type pair struct {
+		l, r int
+	}
+	var work func(i, j int, a, b, posa []int, ans *[]pair, m *int)
+	work = func(i, j int, a, b, posa []int, ans *[]pair, m *int) {
+		if i == j {
+			return
+		}
+
+		*ans = append(*ans, pair{i, j})
+		*m++
+
+		posa[a[i]], posa[a[j]] = posa[a[j]], posa[a[i]]
+
+		a[i], a[j] = a[j], a[i]
+		b[i], b[j] = b[j], b[i]
+	}
+	for Fscan(in, &T); T > 0; T-- {
+		var n int
+		Fscan(in, &n)
+		a := make([]int, n+1)
+		b := make([]int, n+1)
+		posa := make([]int, n+1)
+		var val int
+
+		for i := 1; i <= n; i++ {
+			Fscan(in, &val)
+			a[i] = val
+			posa[a[i]] = i
+		}
+		for i := 1; i <= n; i++ {
+			Fscan(in, &b[i])
+		}
+
+		m := 0
+		x := 0
+		ans := make([]pair, 0, n)
+
+		for i := 1; i <= n; i++ {
+			if a[i] == b[i] {
+				if n&1 == 0 || x != 0 {
+					Fprintln(out, -1)
+					goto next
+				}
+				x = i
+			} else if b[posa[b[i]]] != a[i] {
+				Fprintln(out, -1)
+				goto next
+			}
+		}
+
+		if n&1 == 1 {
+			tar := (n + 1) / 2
+			cur := x
+			work(cur, tar, a, b, posa, &ans, &m)
+		}
+
+		for i := 1; i <= n/2; i++ {
+			cur := posa[b[i]]
+			tar := n - i + 1
+			work(cur, tar, a, b, posa, &ans, &m)
+		}
+
+		Fprintln(out, m)
+		for i := range m {
+			Fprintln(out, ans[i].l, ans[i].r)
+		}
+	next:
+	}
+}
+
+func abs(x int) int {
+	if x < 0 {
+		return -x
+	}
+	return x
+}
+
+func abs64(x i64) i64 {
+	if x < 0 {
+		return -x
+	}
+	return x
+}
+
+func gcd(x, y int) int {
+	for y != 0 {
+		x, y = y, x%y
+	}
+	return x
+}
+
+func max64(x, y i64) i64 {
+	if x > y {
+		return x
+	}
+	return y
+}
+
+func min64(x, y i64) i64 {
+	if x < y {
+		return x
+	}
+	return y
+}
+
+func main() {
+	solve(bufio.NewReader(os.Stdin), os.Stdout)
+}
 
 ```
 ---
