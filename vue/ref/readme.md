@@ -1,0 +1,35 @@
+# 响应式的诞生
+
+## 纯后端的套模板
+- mvc 开发模式
+    - model 数据
+        MySQL 数据库抽象
+    - view 模板
+        html {{todos}}
+
+    - controller 业务逻辑
+        控制器 查询model
+        渲染view 模板
+    - http 伺服
+        req.url
+        res.end
+        - html 静态部分
+        - 动态部分，由数据驱动
+
+## 前后端分离
+- 前端
+    html/css/js
+    ajax/fetch 主动地拉取数据
+    http://127.0.0.1:5500/vue/ref/demo2/frontend/index.html
+- 后端
+    没有返回html
+    数据接口 api   :3000/users
+    http://localhost:3000/users
+- 优势是开发人员解耦
+    - 前端开发人员 只需要关注 数据的展示、用户体验
+        dom 编程 先找节点（不是业务）
+        focus业务？ 数据驱动界面
+    - 后端开发人员 只需要关注 数据的处理、并发性能
+
+## 响应式数据驱动
+    - 前后端分离
