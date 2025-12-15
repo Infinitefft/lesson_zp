@@ -1,16 +1,35 @@
-# [cf1790E] [Vlad and a Pair of Numbers](https://codeforces.com/contest/1790/problem/E)
+# [1837D] [Bracket Coloring](https://codeforces.com/problemset/problem/1837/D)
 
 ## 题目描述
-Vlad found two positive numbers $a$ and $b$ ($a,b>0$). He discovered that $a \oplus b = \frac{a + b}{2}$, where $\oplus$ means the [bitwise exclusive OR](http://tiny.cc/xor_wiki_eng) , and division is performed without rounding..
+A regular bracket sequence is a bracket sequence that can be transformed into a correct arithmetic expression by inserting characters "1" and "+" between the original characters of the sequence. For example:
 
-Since it is easier to remember one number than two, Vlad remembered only $a\oplus b$, let's denote this number as $x$. Help him find any suitable $a$ and $b$ or tell him that they do not exist.
+-   the bracket sequences "()()" and "(())" are regular (the resulting expressions are: "(1)+(1)" and "((1+1)+1)");
+-   the bracket sequences ")(", "(" and ")" are not.
 
+A bracket sequence is called beautiful if one of the following conditions is satisfied:
+
+-   it is a regular bracket sequence;
+-   if the order of the characters in this sequence is reversed, it becomes a regular bracket sequence.
+
+For example, the bracket sequences "()()", "(())", ")))(((", "))()((" are beautiful.
+
+You are given a bracket sequence $s$. You have to color it in such a way that:
+
+-   every bracket is colored into one color;
+-   for every color, there is at least one bracket colored into that color;
+-   for every color, if you write down the sequence of brackets having that color in the order they appear, you will get a beautiful bracket sequence.
+
+Color the given bracket sequence $s$ into the **minimum** number of colors according to these constraints, or report that it is impossible.
 
 
 ---
 
-## 题目大意yihuo
-给你一个数字 $x$ ，请你找出两个数 a, b 使得 $a \oplus b = x $ 并且 $\frac{a + b}{2} = x$
+## 题目大意
+给你一个长度为 n 的括号序列 s。我们将类似于 `(()()())` 成为一个合法的括号序列。而 `)(` 不是一个合法的括号序列。但是如果我们将 `)(` 反转，得到 `)(`，这成为**美丽序列**。
+
+例如 `"()()", "(())", ")))(((", "))()(("` ，这些都是**美丽序列**。
+
+现在让你对每个括号进行染色（标成数字，从 $1$ 开始），染成同样颜色的括号序列必须是**美丽序列**。如果可以，输出最小的颜色数以及染色方案，否则输出 $-1$ 。
 
 
 ---
@@ -28,13 +47,13 @@ Since it is easier to remember one number than two, Vlad remembered only $a\oplu
 
 ## 我的思路
 
-**构造/位运算**
+**构造/贪心**
 
-> 考虑 $a \oplus b = x $ ，我们从高位开始每一位考虑，由于异或的性质，要一个 $1$ 一个 $0$ 才能得到 $1$ 。不难发现 $a, b$ 其中一个数位个数一定跟 $x$ 一样，并且最高位一个是 $1$ ，一个是 $0$ ，那么我们就假设是 $a$ ，接着考虑剩余的数位，遇到 $x$ 数位上为 $1$ ，同样说明 $a, b$ 当前数位上一个 $1$ ，一个 $0$ 。为了方便我们可以都给 $a$ ，最终我们的 $a$ 就是 $x$ ，而 $b$ 则为 $0$ 。
+> 直觉，这个问题答案要么是**不可能($-1$)** ，要么这个序列本身就是**美丽序列**，要么得**拆开成两个**美丽序列。
 
-> 现在考虑 $\frac{a + b}{2} = x$ ，我们现在 $a + b = x + 0$ ，所以离我们的目标还差个 $del = x$ 。所以我们要对 $a, b$ 进行**修正**，由于我们构造的 $a, b$ 都是基于 $x$ 数位为 $1$ 的情况，修正我们只能在 $x$ 为 $0$ 的数位上修正，并且修正 $a, b$ 的数位必须是**同时**为 $1$ 或 $0$ (满足异或) 。同时为 $1$ 的话， $a, b$ 一个数位对总和的**贡献**都是 $rew$ ，所以是 $rew * 2$ 。所以可能的总的贡献是 $2 * (rew_i, rew_j...rew_k) = del$ 。所以如果 $del(即为x)$ 为**奇数**的话是**一定不可能**的。那么我们分配到 $a, b$ 的差值即为 $x/2$ ，前面的推导知道只能是在 $x$ 为数位为 $0$ 的位置上做修正，所以如果 $x$ & $(x/2) > 0$ 说明**有重合**，即我们做修正的位置跟一开始构造的假设是冲突的。一开始**构造**的是 $a, b$ **不同为** $1$ 或 $0$ ，**修正**是**同时为** $1$ 或 $0$ 。所以 $x$ & $(x/2) > 0$ 也是**一定不可能**的。
+> 对于一个美丽序列，我们可以是一个**正序列**，也可以是一个**反序列**。我们使用一个 $cnt$ 来计数，如果当前是 `(` ，那么 $cnt$ 就**加一**，如果当前是 `)` ，那么 $cnt$ 就**减一**。注意到，如果是个**正的合法序列**，那么序列中**所有的** $cnt$ 都是**非负数**，并且**结尾** $cnt$ 为 $0$ 。如果是个**反的合法序列**，那么序列中所有的 $cnt$ 都是**非正数**，并且 **结尾** $cnt$ 也为 $0$。所以我们可以再另外用一个 $mask$ 数组来标记当前位置的 $cnt$ 状态，便于答案的输出。如果 $mask[i] >= 0$ 就输出 $1$ ，否则输出 $2$ 。我们还要判断 $s$ **本身**是不是就是一个美丽序列，**如果是**直接全部输出 $1$ 就好了。
 
-> 除去不可能的情况，答案就是 $a = x + x/2, b = x/2$
+> 如果 $len(s)$ 是奇数或 $s$ 中 `(`, `)` 数量不一样，那么一定不可能。
 
 
 
@@ -62,6 +81,7 @@ import (
 	. "fmt"
 	"io"
 	"os"
+	"strings"
 )
 
 const inf = 0x3f3f3f3f
@@ -79,18 +99,55 @@ type (
 func solve(in io.Reader, out io.Writer) {
 	var T int
 	for Fscan(in, &T); T > 0; T-- {
-		var x int
-		Fscan(in, &x)
-		if x&1 == 1 {
-			Fprintln(out, "-1")
-			goto next
-		} else if x&(x/2) > 0 {
-			Fprintln(out, "-1")
-			goto next
-		} else {
-			Fprintln(out, x+x/2, x/2)
+		var n int
+		Fscan(in, &n)
+		var s string
+		Fscan(in, &s)
+
+		if n&1 == 1 || strings.Count(s, "(") != n/2 {
+			Fprintln(out, -1)
+			continue
 		}
-	next:
+
+		mask := make([]int, n)
+		cnt := 0
+
+		has1, has2 := false, false
+
+		for i, c := range s {
+			if c == '(' {
+				if cnt >= 0 {
+					mask[i] = 1
+					has1 = true
+				} else {
+					mask[i] = 2
+					has2 = true
+				}
+				cnt++
+			} else {
+				cnt--
+				if cnt >= 0 {
+					mask[i] = 1
+					has1 = true
+				} else {
+					mask[i] = 2
+					has2 = true
+				}
+			}
+		}
+
+		if has1 && has2 {
+			Fprintln(out, 2)
+			for _, c := range mask {
+				Fprint(out, c, " ")
+			}
+		} else {
+			Fprintln(out, 1)
+			for range n {
+				Fprint(out, 1, " ")
+			}
+		}
+		Fprintln(out)
 	}
 }
 
