@@ -1,35 +1,13 @@
-# [1837D] [Bracket Coloring](https://codeforces.com/problemset/problem/1837/D)
+# [LeetCode2681] [英雄的力量](https://leetcode.cn/problems/power-of-heroes/description/)
 
 ## 题目描述
-A regular bracket sequence is a bracket sequence that can be transformed into a correct arithmetic expression by inserting characters "1" and "+" between the original characters of the sequence. For example:
-
--   the bracket sequences "()()" and "(())" are regular (the resulting expressions are: "(1)+(1)" and "((1+1)+1)");
--   the bracket sequences ")(", "(" and ")" are not.
-
-A bracket sequence is called beautiful if one of the following conditions is satisfied:
-
--   it is a regular bracket sequence;
--   if the order of the characters in this sequence is reversed, it becomes a regular bracket sequence.
-
-For example, the bracket sequences "()()", "(())", ")))(((", "))()((" are beautiful.
-
-You are given a bracket sequence $s$. You have to color it in such a way that:
-
--   every bracket is colored into one color;
--   for every color, there is at least one bracket colored into that color;
--   for every color, if you write down the sequence of brackets having that color in the order they appear, you will get a beautiful bracket sequence.
-
-Color the given bracket sequence $s$ into the **minimum** number of colors according to these constraints, or report that it is impossible.
-
+给你一个下标从 $0$ 开始的整数数组 $nums$ ，它表示英雄的能力值。如果我们选出一部分英雄，这组英雄的 力量 定义为： $i_0, i_1, ... i_k$ 表示这组英雄在数组中的下标。那么这组英雄的力量为 $max(nums[i_0],nums[i_1] ... nums[i_k])2 * min(nums[i_0],nums[i_1] ... nums[i_k])$ 。
+请你返回所有可能的 **非空** 英雄组的 **力量** 之和。由于答案可能非常大，请你将结果对 $10^9 + 7$ 取余。
 
 ---
 
 ## 题目大意
-给你一个长度为 n 的括号序列 s。我们将类似于 `(()()())` 成为一个合法的括号序列。而 `)(` 不是一个合法的括号序列。但是如果我们将 `)(` 反转，得到 `)(`，这成为**美丽序列**。
 
-例如 `"()()", "(())", ")))(((", "))()(("` ，这些都是**美丽序列**。
-
-现在让你对每个括号进行染色（标成数字，从 $1$ 开始），染成同样颜色的括号序列必须是**美丽序列**。如果可以，输出最小的颜色数以及染色方案，否则输出 $-1$ 。
 
 
 ---
@@ -47,160 +25,73 @@ Color the given bracket sequence $s$ into the **minimum** number of colors accor
 
 ## 我的思路
 
-**构造/贪心**
+**贡献法**
 
-> 直觉，这个问题答案要么是**不可能($-1$)** ，要么这个序列本身就是**美丽序列**，要么得**拆开成两个**美丽序列。
+> 由于排序对题目答案没有影响，我们将 nums 进行升序排序。
 
-> 对于一个美丽序列，我们可以是一个**正序列**，也可以是一个**反序列**。我们使用一个 $cnt$ 来计数，如果当前是 `(` ，那么 $cnt$ 就**加一**，如果当前是 `)` ，那么 $cnt$ 就**减一**。注意到，如果是个**正的合法序列**，那么序列中**所有的** $cnt$ 都是**非负数**，并且**结尾** $cnt$ 为 $0$ 。如果是个**反的合法序列**，那么序列中所有的 $cnt$ 都是**非正数**，并且 **结尾** $cnt$ 也为 $0$。所以我们可以再另外用一个 $mask$ 数组来标记当前位置的 $cnt$ 状态，便于答案的输出。如果 $mask[i] >= 0$ 就输出 $1$ ，否则输出 $2$ 。我们还要判断 $s$ **本身**是不是就是一个美丽序列，**如果是**直接全部输出 $1$ 就好了。
-
-> 如果 $len(s)$ 是奇数或 $s$ 中 `(`, `)` 数量不一样，那么一定不可能。
-
+> 考虑排序完后为 $a, b, c, d, e$ 。我们假设**当前最大值**为 $d$ ，那么**单独**一个 $d$ 对答案的贡献为 $d^2 * d = d^3$ ，**枚举最小值**为 $a, b, c$ 。以 $a$ 为最小值时， b, c 可选可不选，可选的方案数为 $2^2 = 4$ ，所以以 a 为最小值时对的贡献为 $d^2 * a * 2^2$ ；同样的以 $b$ 为**最小值**时， c 可选可不选，对答案的贡献为 $d^2 * b * 2^1$  ； 以 $c$ 为**最小值**时对答案的贡献为 $d^2*c*2^0$ 。$$所以总的贡献为： d^2 * (a*2^2 + b*2^1 + c*2^0) + d^3。$$  $$ 令s = a*2^2 + b*2^1 + c*2^0 , => d^2 * s + d^3$$ 假设以 $e$ 为最大值，可得对答案的贡献为 $$ e^2 * (a*2^3 + b*2^2 + c*2^1 + d *2^0) + e^3 => e^2*2*s+d+e^3$$ 。可以发现对于当前数为枚举的最大值 $cur$ 那么答案即为 $$cur^2*s+cur^3, 而 s 即为上一个做的贡献，s 的更新即为 2 * s + cur 。 $$  $$ 我们每次在答案更新后对 s 进行更新即可为下一个最大值更新答案做准备。 $$
 
 
 ---
 
 ## 时间复杂度
 
-$O()$
+$O(nlogn)$ ，其中 $n$ 为 $nums$ 的长度。主要在排序上。
 
 ---
 
 ## 空间复杂度
 
-$O()$
+$O(1)$
 
 ---
 
 ## Go 代码
 
 ```Go
-package main
-
-import (
-	"bufio"
-	. "fmt"
-	"io"
-	"os"
-	"strings"
-)
-
-const inf = 0x3f3f3f3f
-
-type (
-	i8  = int8
-	i64 = int64
-	i32 = int32
-	u64 = uint64
-	u32 = uint32
-	f32 = float32
-	f64 = float64
-)
-
-func solve(in io.Reader, out io.Writer) {
-	var T int
-	for Fscan(in, &T); T > 0; T-- {
-		var n int
-		Fscan(in, &n)
-		var s string
-		Fscan(in, &s)
-
-		if n&1 == 1 || strings.Count(s, "(") != n/2 {
-			Fprintln(out, -1)
-			continue
-		}
-
-		mask := make([]int, n)
-		cnt := 0
-
-		has1, has2 := false, false
-
-		for i, c := range s {
-			if c == '(' {
-				if cnt >= 0 {
-					mask[i] = 1
-					has1 = true
-				} else {
-					mask[i] = 2
-					has2 = true
-				}
-				cnt++
-			} else {
-				cnt--
-				if cnt >= 0 {
-					mask[i] = 1
-					has1 = true
-				} else {
-					mask[i] = 2
-					has2 = true
-				}
-			}
-		}
-
-		if has1 && has2 {
-			Fprintln(out, 2)
-			for _, c := range mask {
-				Fprint(out, c, " ")
-			}
-		} else {
-			Fprintln(out, 1)
-			for range n {
-				Fprint(out, 1, " ")
-			}
-		}
-		Fprintln(out)
+func sumOfPower(nums []int) (ans int) {
+	const mod = 1_000_000_007
+	sort.Ints(nums)
+	s := 0
+	for _, x := range nums {
+		ans = (ans + x*x%mod*(x+s)) % mod
+		s = (s*2 + x) % mod
 	}
+	return
 }
-
-func abs(x int) int {
-	if x < 0 {
-		return -x
-	}
-	return x
-}
-
-func abs64(x i64) i64 {
-	if x < 0 {
-		return -x
-	}
-	return x
-}
-
-func gcd(x, y int) int {
-	for y != 0 {
-		x, y = y, x%y
-	}
-	return x
-}
-
-func max64(x, y i64) i64 {
-	if x > y {
-		return x
-	}
-	return y
-}
-
-func min64(x, y i64) i64 {
-	if x < y {
-		return x
-	}
-	return y
-}
-
-func main() {
-	solve(bufio.NewReader(os.Stdin), os.Stdout)
-}
-
 ```
 ---
 
 ## C++ 代码
 
 ```C++
+class Solution {
+public:
+    int sumOfPower(vector<int>& nums) {
+        const int MOD = 1'000'000'007;
+        ranges::sort(nums);
+        int ans = 0, s = 0;
+        for (long long x : nums) {
+            ans = (ans + x * x % MOD * (x + s)) % MOD;
+            s = (s * 2 + x) % MOD;
+        }
+        return ans;
+    }
+};
 ```
 ---
 ## Python 代码
 
 ```Python
+class Solution:
+    def sumOfPower(self, nums: List[int]) -> int:
+        MOD = 1_000_000_007
+        nums.sort()
+        ans = s = 0
+        for x in nums:
+            ans = (ans + x * x * (x + s)) % MOD
+            s = (s * 2 + x) % MOD
+        return ans
 ```
 
 ---
