@@ -1,8 +1,18 @@
-# [LeetCode2681] [英雄的力量](https://leetcode.cn/problems/power-of-heroes/description/)
+# [LeetCode3589] [计数质数间隔平衡子数组](https://leetcode.cn/problems/count-prime-gap-balanced-subarrays/description/)
 
 ## 题目描述
-给你一个下标从 $0$ 开始的整数数组 $nums$ ，它表示英雄的能力值。如果我们选出一部分英雄，这组英雄的 力量 定义为： $i_0, i_1, ... i_k$ 表示这组英雄在数组中的下标。那么这组英雄的力量为 $max(nums[i_0],nums[i_1] ... nums[i_k])2 * min(nums[i_0],nums[i_1] ... nums[i_k])$ 。
-请你返回所有可能的 **非空** 英雄组的 **力量** 之和。由于答案可能非常大，请你将结果对 $10^9 + 7$ 取余。
+给定一个整数数组 `nums` 和一个整数 `k` 。
+
+子数组 被称为 **质数间隔平衡**，如果：
+
+其包含 **至少两个质数**，并且
+该 **子数组** 中 **最大** 和 **最小** 质数的差小于或等于 `k`。
+返回 `nums` 中质数间隔平衡子数组的数量。
+
+注意：
+
+子数组 **是数组中连续的** **非空** 元素序列。
+质数是大于 $1$ 的自然数，它只有两个因数，即 $1$ 和**它本身**。
 
 ---
 
@@ -25,39 +35,87 @@
 
 ## 我的思路
 
-**贡献法**
+**单调队列+滑动窗口**
 
-> 由于排序对题目答案没有影响，我们将 nums 进行升序排序。
+> 窗口（子数组）越长，所包含的质数的最大值越大，最小值越小，质数极差越大；反之，窗口越短，质数极差越小。我们可以用滑动窗口来解决。同时我们维护**两个单调队列**，一个单调递增队列，一个单调递减队列，分别维护窗口内的素数**最大值**和**最小值**。
 
-> 考虑排序完后为 $a, b, c, d, e$ 。我们假设**当前最大值**为 $d$ ，那么**单独**一个 $d$ 对答案的贡献为 $d^2 * d = d^3$ ，**枚举最小值**为 $a, b, c$ 。以 $a$ 为最小值时， b, c 可选可不选，可选的方案数为 $2^2 = 4$ ，所以以 a 为最小值时对的贡献为 $d^2 * a * 2^2$ ；同样的以 $b$ 为**最小值**时， c 可选可不选，对答案的贡献为 $d^2 * b * 2^1$  ； 以 $c$ 为**最小值**时对答案的贡献为 $d^2*c*2^0$ 。$$所以总的贡献为： d^2 * (a*2^2 + b*2^1 + c*2^0) + d^3。$$  $$ 令s = a*2^2 + b*2^1 + c*2^0 , => d^2 * s + d^3$$ 假设以 $e$ 为最大值，可得对答案的贡献为 $$ e^2 * (a*2^3 + b*2^2 + c*2^1 + d *2^0) + e^3 => e^2*2*s+d+e^3$$ 。可以发现对于当前数为枚举的最大值 $cur$ 那么答案即为 $$cur^2*s+cur^3, 而 s 即为上一个做的贡献，s 的更新即为 2 * s + cur 。 $$  $$ 我们每次在答案更新后对 s 进行更新即可为下一个最大值更新答案做准备。 $$
+> 我们先要判断当前是是否为素数，可以先用**埃氏筛**来预处理出所有的素数。
+
+> 同时维护两个素数下标，一个为倒数第二个($last2$)  ，一个为最后一个($last1$) 。我们**枚举每个右端点**，满足要求时，当前窗口（子数组）对答案的贡献即为 $last2 - l + 1$ 即符合要求的**左端点的个数**。
 
 
 ---
 
 ## 时间复杂度
 
-$O(nlogn)$ ，其中 $n$ 为 $nums$ 的长度。主要在排序上。
+$O(n)$ 
 
 ---
 
 ## 空间复杂度
 
-$O(1)$
+$O()$
 
 ---
 
 ## Go 代码
 
 ```Go
-func sumOfPower(nums []int) (ans int) {
-	const mod = 1_000_000_007
-	sort.Ints(nums)
-	s := 0
-	for _, x := range nums {
-		ans = (ans + x*x%mod*(x+s)) % mod
-		s = (s*2 + x) % mod
+const mx = 5000001
+var isprime [mx]bool
+var primes []int
+
+func sieve() {
+	for i := 2; i < mx; i++ {
+		isprime[i] = true
 	}
-	return
+
+	for i := 2; i < mx; i++ {
+		if isprime[i] {
+			primes = append(primes, i)
+		}
+		for j := i * i; j < mx; j += i {
+			isprime[j] = false
+		}
+	}
+}
+
+func init() {
+	sieve()
+}
+
+func primeSubarray(nums []int, k int) (ans int) {
+    last1, last2 := -1, -1
+    var maxv, minv []int
+    l := 0
+    for i, x := range nums {
+        if isprime[x] {
+            last2 = last1
+            last1 = i
+            for len(maxv) > 0 && x >= nums[maxv[len(maxv)-1]] {
+                maxv = maxv[:len(maxv)-1]
+            }
+            maxv = append(maxv, i)
+
+            for len(minv) > 0 && x <= nums[minv[len(minv)-1]] {
+                minv = minv[:len(minv)-1]
+            }
+            minv = append(minv, i)
+
+
+            for nums[maxv[0]] - nums[minv[0]] > k {
+                l++
+                if minv[0] < l {
+                    minv = minv[1:]
+                }
+                if maxv[0] < l {
+                    maxv = maxv[1:]
+                }
+            }
+        }
+        ans += last2 - l + 1
+    }
+    return
 }
 ```
 ---
@@ -65,33 +123,13 @@ func sumOfPower(nums []int) (ans int) {
 ## C++ 代码
 
 ```C++
-class Solution {
-public:
-    int sumOfPower(vector<int>& nums) {
-        const int MOD = 1'000'000'007;
-        ranges::sort(nums);
-        int ans = 0, s = 0;
-        for (long long x : nums) {
-            ans = (ans + x * x % MOD * (x + s)) % MOD;
-            s = (s * 2 + x) % MOD;
-        }
-        return ans;
-    }
-};
+
 ```
 ---
 ## Python 代码
 
 ```Python
-class Solution:
-    def sumOfPower(self, nums: List[int]) -> int:
-        MOD = 1_000_000_007
-        nums.sort()
-        ans = s = 0
-        for x in nums:
-            ans = (ans + x * x * (x + s)) % MOD
-            s = (s * 2 + x) % MOD
-        return ans
+
 ```
 
 ---
