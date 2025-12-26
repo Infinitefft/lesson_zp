@@ -1,23 +1,23 @@
-# [LeetCode3589] [计数质数间隔平衡子数组](https://leetcode.cn/problems/count-prime-gap-balanced-subarrays/description/)
+# [cf2165A] [Cyclic Merging](https://codeforces.com/problemset/problem/2165/A)
 
 ## 题目描述
-给定一个整数数组 `nums` 和一个整数 `k` 。
+You are given $n$ non-negative integers $a_1,a_2,\ldots,a_n$ arranged on a ring. For each $1\le i< n$, $a_i$ and $a_{i+1}$ are adjacent; $a_1$ and $a_n$ are adjacent.
 
-子数组 被称为 **质数间隔平衡**，如果：
+You need to perform the following operation **exactly** $n-1$ times:
 
-其包含 **至少两个质数**，并且
-该 **子数组** 中 **最大** 和 **最小** 质数的差小于或等于 `k`。
-返回 `nums` 中质数间隔平衡子数组的数量。
+-   Choose any pair of adjacent elements on the ring, let their values be $x$ and $y$, and merge them into a single element of value $\max(x,y)$ with cost $\max(x,y)$.
 
-注意：
+Note that this operation will decrease the size of the ring by $1$ and update the adjacent relationships accordingly.
 
-子数组 **是数组中连续的** **非空** 元素序列。
-质数是大于 $1$ 的自然数，它只有两个因数，即 $1$ 和**它本身**。
+Please calculate the minimum total cost to merge the ring into one element.
+
 
 ---
 
 ## 题目大意
-
+给你一个 **环形数组** ，你可以任意选择两个相邻的元素，将它们**合并成** $max(x, y)$ ，合并的代价为 $max(x, y)$ 。
+你需要合并 $n-1$ 次，使得数组**只剩下一个**元素。
+请你计算出**最小的**合并代价。
 
 
 ---
@@ -35,13 +35,13 @@
 
 ## 我的思路
 
-**单调队列+滑动窗口**
+**贪心**
 
-> 窗口（子数组）越长，所包含的质数的最大值越大，最小值越小，质数极差越大；反之，窗口越短，质数极差越小。我们可以用滑动窗口来解决。同时我们维护**两个单调队列**，一个单调递增队列，一个单调递减队列，分别维护窗口内的素数**最大值**和**最小值**。
+> 不难发现，合并的最优是邻居合并，因为**合并操作**一定是**单调不减**的，对于任意一个元素的左右邻居，**邻居都不可能减小**，所以合并邻居的代价一定是最小的。那么如何进行合并呢？
 
-> 我们先要判断当前是是否为素数，可以先用**埃氏筛**来预处理出所有的素数。
+> 假设当前合并的元素为 $a_i$ ，左边离 $i$ 最近大于 $a_i$ 的元素为 $a_j$ 。那么中间的元素一定是比 $a_i$ 小的，不管怎么样，中间的一堆元素最终都是最优和 $a_i$ 合并的。即 $a_{i-1} < a_i$ ，那么最终代价是 $a_i$ ，中间一堆元素也是刚刚的一个子问题，那么可以推出**当前位置**  $i$ 对答案的贡献即为 $max(a_i, a_{i+1})$ ，由于是**环形**的，还要考虑到 $max(a_{n-1}, a_0)$ 。并且我们一定是要操作 $n - 1$ 次，但是对于最大的那个元素一定是算了两次的，我们遇到**最大的元素**时，最优是把**剩余元素**合并起来，然后**最后一次**再跟**最大元素**合并，所以最终答案要**减去** $max(a_0, a_1, a_2, ... , a_{n-1})$
 
-> 同时维护两个素数下标，一个为倒数第二个($last2$)  ，一个为最后一个($last1$) 。我们**枚举每个右端点**，满足要求时，当前窗口（子数组）对答案的贡献即为 $last2 - l + 1$ 即符合要求的**左端点的个数**。
+> 最终答案即为 $sum(max(a_0, a_1), max(a_1, a_2), ..., max(a_{n-2}, a_{n-1})) + max(a_{n-1}, a_0) - max(a_0, a_1, a_2, ... , a_{n-1})$
 
 
 ---
@@ -54,69 +54,92 @@ $O(n)$
 
 ## 空间复杂度
 
-$O()$
+$O(1)$
 
 ---
 
 ## Go 代码
 
 ```Go
-const mx = 5000001
-var isprime [mx]bool
-var primes []int
+package main
 
-func sieve() {
-	for i := 2; i < mx; i++ {
-		isprime[i] = true
-	}
+import (
+	"bufio"
+	. "fmt"
+	"io"
+	"os"
+	"slices"
+)
 
-	for i := 2; i < mx; i++ {
-		if isprime[i] {
-			primes = append(primes, i)
+const inf = 0x3f3f3f3f
+
+type (
+	i8  = int8
+	i64 = int64
+	i32 = int32
+	u64 = uint64
+	u32 = uint32
+	f32 = float32
+	f64 = float64
+)
+
+func solve(in io.Reader, out io.Writer) {
+	var T int
+	const mod = 998244353
+	for Fscan(in, &T); T > 0; T-- {
+		var n int
+		Fscan(in, &n)
+		a := make([]int, n)
+		for i := range a {
+			Fscan(in, &a[i])
 		}
-		for j := i * i; j < mx; j += i {
-			isprime[j] = false
+		ans := 0
+		for i := 0; i < n-1; i++ {
+			ans += max(a[i], a[i+1])
 		}
+		Fprintln(out, ans+max(a[n-1], a[0])-slices.Max(a))
 	}
 }
 
-func init() {
-	sieve()
+func abs(x int) int {
+	if x < 0 {
+		return -x
+	}
+	return x
 }
 
-func primeSubarray(nums []int, k int) (ans int) {
-    last1, last2 := -1, -1
-    var maxv, minv []int
-    l := 0
-    for i, x := range nums {
-        if isprime[x] {
-            last2 = last1
-            last1 = i
-            for len(maxv) > 0 && x >= nums[maxv[len(maxv)-1]] {
-                maxv = maxv[:len(maxv)-1]
-            }
-            maxv = append(maxv, i)
-
-            for len(minv) > 0 && x <= nums[minv[len(minv)-1]] {
-                minv = minv[:len(minv)-1]
-            }
-            minv = append(minv, i)
-
-
-            for nums[maxv[0]] - nums[minv[0]] > k {
-                l++
-                if minv[0] < l {
-                    minv = minv[1:]
-                }
-                if maxv[0] < l {
-                    maxv = maxv[1:]
-                }
-            }
-        }
-        ans += last2 - l + 1
-    }
-    return
+func abs64(x i64) i64 {
+	if x < 0 {
+		return -x
+	}
+	return x
 }
+
+func gcd(x, y int) int {
+	for y != 0 {
+		x, y = y, x%y
+	}
+	return x
+}
+
+func max64(x, y i64) i64 {
+	if x > y {
+		return x
+	}
+	return y
+}
+
+func min64(x, y i64) i64 {
+	if x < y {
+		return x
+	}
+	return y
+}
+
+func main() {
+	solve(bufio.NewReader(os.Stdin), os.Stdout)
+}
+
 ```
 ---
 
