@@ -1,23 +1,21 @@
-# [cf2165A] [Cyclic Merging](https://codeforces.com/problemset/problem/2165/A)
+# [LeetCode1235] [规划兼职工作](https://leetcode.cn/problems/maximum-profit-in-job-scheduling/description/)
 
 ## 题目描述
-You are given $n$ non-negative integers $a_1,a_2,\ldots,a_n$ arranged on a ring. For each $1\le i< n$, $a_i$ and $a_{i+1}$ are adjacent; $a_1$ and $a_n$ are adjacent.
+你打算利用空闲时间来做兼职工作赚些零花钱。
 
-You need to perform the following operation **exactly** $n-1$ times:
+这里有 `n` 份兼职工作，每份工作预计从 `startTime[i]` 开始到 `endTime[i]` 结束，报酬为 `profit[i]` 。
 
--   Choose any pair of adjacent elements on the ring, let their values be $x$ and $y$, and merge them into a single element of value $\max(x,y)$ with cost $\max(x,y)$.
+给你一份兼职工作表，包含开始时间 `startTime` ，结束时间 `endTime` 和预计报酬 `profit` 三个数组，请你计算并返回可以获得的最大报酬。
 
-Note that this operation will decrease the size of the ring by $1$ and update the adjacent relationships accordingly.
+注意，时间上出现重叠的 `2` 份工作不能同时进行。
 
-Please calculate the minimum total cost to merge the ring into one element.
+如果你选择的工作在时间 `X` 结束，那么你可以立刻进行在时间 `X` 开始的下一份工作。
 
 
 ---
 
 ## 题目大意
-给你一个 **环形数组** ，你可以任意选择两个相邻的元素，将它们**合并成** $max(x, y)$ ，合并的代价为 $max(x, y)$ 。
-你需要合并 $n-1$ 次，使得数组**只剩下一个**元素。
-请你计算出**最小的**合并代价。
+
 
 
 ---
@@ -35,13 +33,19 @@ Please calculate the minimum total cost to merge the ring into one element.
 
 ## 我的思路
 
-**贪心**
+**二分查找优化DP**
 
-> 不难发现，合并的最优是邻居合并，因为**合并操作**一定是**单调不减**的，对于任意一个元素的左右邻居，**邻居都不可能减小**，所以合并邻居的代价一定是最小的。那么如何进行合并呢？
+> 我们将每个兼职工作按照**结束时间**进行**从小到大**排序。
 
-> 假设当前合并的元素为 $a_i$ ，左边离 $i$ 最近大于 $a_i$ 的元素为 $a_j$ 。那么中间的元素一定是比 $a_i$ 小的，不管怎么样，中间的一堆元素最终都是最优和 $a_i$ 合并的。即 $a_{i-1} < a_i$ ，那么最终代价是 $a_i$ ，中间一堆元素也是刚刚的一个子问题，那么可以推出**当前位置**  $i$ 对答案的贡献即为 $max(a_i, a_{i+1})$ ，由于是**环形**的，还要考虑到 $max(a_{n-1}, a_0)$ 。并且我们一定是要操作 $n - 1$ 次，但是对于最大的那个元素一定是算了两次的，我们遇到**最大的元素**时，最优是把**剩余元素**合并起来，然后**最后一次**再跟**最大元素**合并，所以最终答案要**减去** $max(a_0, a_1, a_2, ... , a_{n-1})$
+> 定义 $f[i]$ 表示**前** $i$ 份兼职工作可以获得的最大报酬。
 
-> 最终答案即为 $sum(max(a_0, a_1), max(a_1, a_2), ..., max(a_{n-2}, a_{n-1})) + max(a_{n-1}, a_0) - max(a_0, a_1, a_2, ... , a_{n-1})$
+> 来到当前 $i$ 兼职工作，我们可以选择**不做**这份工作，那么可以直接从 $f[i-1]$ 转移过来。
+
+> 如果选择**做**这份工作，那么我们需要找到**最后一个**结束时间**小于等于** $startTime[i]$ 的兼职工作 $j$ ，那么可以从 $f[j]$ 转移过来，转移的代价为 $profit[i]$ 。由于我们已经将兼职工作按照**结束时间**进行了排序，所以可以使用**二分查找优化**。
+
+> 所以转移方程为 $f[i] = max(f[i-1], f[j] + profit[i])$
+
+**因为转移有 $f[i-1]$ ，为了避免讨论负数下标我们可以将f数组的长度设为 $n+1$ ，$f[0]$ 表示不做任何兼职工作的情况，所以转移方程为 $f[i] = max(f[i-1], f[j+1] + profit[i])$**
 
 
 ---
@@ -61,83 +65,26 @@ $O(1)$
 ## Go 代码
 
 ```Go
-package main
-
-import (
-	"bufio"
-	. "fmt"
-	"io"
-	"os"
-	"slices"
-)
-
-const inf = 0x3f3f3f3f
-
-type (
-	i8  = int8
-	i64 = int64
-	i32 = int32
-	u64 = uint64
-	u32 = uint32
-	f32 = float32
-	f64 = float64
-)
-
-func solve(in io.Reader, out io.Writer) {
-	var T int
-	const mod = 998244353
-	for Fscan(in, &T); T > 0; T-- {
-		var n int
-		Fscan(in, &n)
-		a := make([]int, n)
-		for i := range a {
-			Fscan(in, &a[i])
-		}
-		ans := 0
-		for i := 0; i < n-1; i++ {
-			ans += max(a[i], a[i+1])
-		}
-		Fprintln(out, ans+max(a[n-1], a[0])-slices.Max(a))
-	}
-}
-
-func abs(x int) int {
-	if x < 0 {
-		return -x
-	}
-	return x
-}
-
-func abs64(x i64) i64 {
-	if x < 0 {
-		return -x
-	}
-	return x
-}
-
-func gcd(x, y int) int {
-	for y != 0 {
-		x, y = y, x%y
-	}
-	return x
-}
-
-func max64(x, y i64) i64 {
-	if x > y {
-		return x
-	}
-	return y
-}
-
-func min64(x, y i64) i64 {
-	if x < y {
-		return x
-	}
-	return y
-}
-
-func main() {
-	solve(bufio.NewReader(os.Stdin), os.Stdout)
+func jobScheduling(startTime []int, endTime []int, profit []int) int {
+    n := len(profit)
+    f := make([]int, n+1)
+    type job struct {
+        s, e, p int
+    }
+    jobs := make([]job, n)
+    for i, st := range startTime {
+        jobs[i] = job{st, endTime[i], profit[i]}
+    }
+    sort.Slice(jobs, func(i, j int) bool {
+        return jobs[i].e < jobs[j].e
+    })
+    for i, job := range jobs {
+        idx := sort.Search(i, func(j int) bool {
+            return jobs[j].e > jobs[i].s
+        })
+        f[i+1] = max(f[i], f[idx]+job.p)
+    }
+    return f[n]
 }
 
 ```
@@ -152,7 +99,23 @@ func main() {
 ## Python 代码
 
 ```Python
-
+class Solution:
+    def jobScheduling(self, startTime: List[int], endTime: List[int], profit: List[int]) -> int:
+        n = len(profit)
+        f = [0] * (n + 1)
+        
+        jobs = []
+        # jobs[0] 是 startTime, jobs[1] 是 endTime, jobs[2] 是 profit
+        for i in range(n):
+            jobs.append((startTime[i], endTime[i], profit[i]))
+            
+        jobs.sort(key=lambda x: x[1])
+        
+        for i, job in enumerate(jobs):
+            idx = bisect.bisect_right(jobs, job[0], hi=i, key=lambda x: x[1])
+            f[i+1] = max(f[i], f[idx] + job[2])
+            
+        return f[n]
 ```
 
 ---
