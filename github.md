@@ -1,21 +1,19 @@
-# [LeetCode1235] [规划兼职工作](https://leetcode.cn/problems/maximum-profit-in-job-scheduling/description/)
+# [3791] [给定范围内平衡整数的数目](https://leetcode.cn/problems/number-of-balanced-integers-in-a-range/description/)
 
 ## 题目描述
-你打算利用空闲时间来做兼职工作赚些零花钱。
+给你两个整数 $low$ 和 $high$ 。
 
-这里有 `n` 份兼职工作，每份工作预计从 `startTime[i]` 开始到 `endTime[i]` 结束，报酬为 `profit[i]` 。
+如果一个整数同时满足以下 **两个** 条件，则称其为 **平衡** 整数：
 
-给你一份兼职工作表，包含开始时间 `startTime` ，结束时间 `endTime` 和预计报酬 `profit` 三个数组，请你计算并返回可以获得的最大报酬。
+它 **至少** 包含两位数字。
+**偶数位置上**的数字之和 **等于** **奇数位置上**的数字之和（最左边的数字位置为 $1$ ）。
+返回一个整数，表示区间 $[low, high]$（包含两端）内平衡整数的数量。
 
-注意，时间上出现重叠的 `2` 份工作不能同时进行。
-
-如果你选择的工作在时间 `X` 结束，那么你可以立刻进行在时间 `X` 开始的下一份工作。
 
 
 ---
 
 ## 题目大意
-
 
 
 ---
@@ -33,19 +31,10 @@
 
 ## 我的思路
 
-**二分查找优化DP**
+**数位DP**
 
-> 我们将每个兼职工作按照**结束时间**进行**从小到大**排序。
 
-> 定义 $f[i]$ 表示**前** $i$ 份兼职工作可以获得的最大报酬。
-
-> 来到当前 $i$ 兼职工作，我们可以选择**不做**这份工作，那么可以直接从 $f[i-1]$ 转移过来。
-
-> 如果选择**做**这份工作，那么我们需要找到**最后一个**结束时间**小于等于** $startTime[i]$ 的兼职工作 $j$ ，那么可以从 $f[j]$ 转移过来，转移的代价为 $profit[i]$ 。由于我们已经将兼职工作按照**结束时间**进行了排序，所以可以使用**二分查找优化**。
-
-> 所以转移方程为 $f[i] = max(f[i-1], f[j] + profit[i])$
-
-**因为转移有 $f[i-1]$ ，为了避免讨论负数下标我们可以将f数组的长度设为 $n+1$ ，$f[0]$ 表示不做任何兼职工作的情况，所以转移方程为 $f[i] = max(f[i-1], f[j+1] + profit[i])$**
+- 用 $diff$ 来表示偶数位置上数字和与奇数位置上数字和的差值，符合条件的即为 $diff == 0$ 。枚举当前填的数字 $d$ ， $diff$ + ( $d$ $if$ $i$ % $2$ $else -d$ ) ，其中 $i$ 表示当前填的数字的位置。
 
 
 ---
@@ -65,27 +54,6 @@ $O(1)$
 ## Go 代码
 
 ```Go
-func jobScheduling(startTime []int, endTime []int, profit []int) int {
-    n := len(profit)
-    f := make([]int, n+1)
-    type job struct {
-        s, e, p int
-    }
-    jobs := make([]job, n)
-    for i, st := range startTime {
-        jobs[i] = job{st, endTime[i], profit[i]}
-    }
-    sort.Slice(jobs, func(i, j int) bool {
-        return jobs[i].e < jobs[j].e
-    })
-    for i, job := range jobs {
-        idx := sort.Search(i, func(j int) bool {
-            return jobs[j].e > jobs[i].s
-        })
-        f[i+1] = max(f[i], f[idx]+job.p)
-    }
-    return f[n]
-}
 
 ```
 ---
@@ -100,22 +68,29 @@ func jobScheduling(startTime []int, endTime []int, profit []int) int {
 
 ```Python
 class Solution:
-    def jobScheduling(self, startTime: List[int], endTime: List[int], profit: List[int]) -> int:
-        n = len(profit)
-        f = [0] * (n + 1)
+    def countBalanced(self, low: int, high: int) -> int:
+        if high < 11:
+            return 0
         
-        jobs = []
-        # jobs[0] 是 startTime, jobs[1] 是 endTime, jobs[2] 是 profit
-        for i in range(n):
-            jobs.append((startTime[i], endTime[i], profit[i]))
-            
-        jobs.sort(key=lambda x: x[1])
-        
-        for i, job in enumerate(jobs):
-            idx = bisect.bisect_right(jobs, job[0], hi=i, key=lambda x: x[1])
-            f[i+1] = max(f[i], f[idx] + job[2])
-            
-        return f[n]
+        low = str(max(low, 11))
+        high_s = list(map(int, str(high)))
+        n = len(high_s)
+        low_s = list(map(int, low.zfill(n)))
+
+        @cache
+        def dfs(i: int, diff: int, limit_lo: bool, limit_hi: bool) -> int:
+            if i == n:
+                return 1 if diff == 0 else 0
+            lo = low_s[i] if limit_lo else 0    # 如果前面所有数位都跟n一样，那么当前至少得是 low[i]
+            hi = high_s[i] if limit_hi else 9    # 如果前面所有数位都跟n一样，那么当前最多能是 high[i]
+
+            res = 0
+            start = lo
+            for d in range(start, hi+1):
+                res += dfs(i+1, diff+(d if i % 2 else -d), limit_lo and d == lo, limit_hi and d == hi)
+            return res
+
+        return dfs(0, 0, True, True)
 ```
 
 ---
