@@ -75,4 +75,56 @@ JavaScript 超级 ， 强类型静态语言
     重构、修改别人的代码
     干净的代码
 
-#### TypeScript 实战 todos 项目
+### TypeScript 实战 todos
+
+### zustand 状态管理
+如果说国家需要有中央银行，那么前端项目就需要中央状态管理系统。zustand \ redux
+- 组件 = UI + State
+- store 将状态存到store仓库中
+  全局共享
+- 基于hooks思想实现的
+
+## 数据库设计
+- 关系型数据库 mysql/postgresql
+是一种以二维表格（行/列） 组织存储数据，通过主键（Primary key）
+外键建立表格间逻辑关联，遵循ACID 事务特性保证数据一致性和可靠性的数据库。
+表 Table users 类
+row 实例
+column 属性
+### 主键
+- 词典
+  索引目录
+- 唯一的，自增的
+- 高效 利用索引
+### 唯一索引 uniq
+  - username  唯一性、正确性
+### 外键 约束 foreign key
+  - posts 文章id， userId
+  - id 引用 users 表的主键
+  posts.userId == user.id 关联
+### 普通外键 key
+  - 不能乱建
+  - 查询的频繁度
+
+### 文章系统
+- 文章表 posts
+- 用户表 users
+- 评论表 comments
+- 点赞表 likes
+- 标签表 tags
+- 收藏表 favorites
+
+### 连接
+- 左连接 left join
+  - 左表所有数据，右表匹配的数据
+- 右连接 right join
+  - 右表所有数据，左表匹配的数据
+- 内连接 inner join
+  - 左右表都匹配的数据
+- 全连接 full join
+  - 左右表所有数据
+
+### ACID
+- 事务
+A Atomicity 原子性
+要么都成功过，要么全部失败回滚
