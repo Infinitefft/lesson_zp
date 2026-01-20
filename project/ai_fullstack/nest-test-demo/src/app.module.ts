@@ -1,0 +1,20 @@
+import { Module } from '@nestjs/common';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
+import { TodosModule } from './todos/todos.module';
+
+// mvc 设计模式 模型-视图-控制器
+// 一个文件一个类
+// 装饰器模式  让 App Module 类成为一个模块
+@Module({
+  imports: [
+    TodosModule,
+  ],
+  // 后端路由 控制逻辑 参数校验 逻辑处理
+  controllers: [AppController],
+  // 服务层 业务逻辑
+  providers: [AppService],
+})
+export class AppModule {
+
+}
