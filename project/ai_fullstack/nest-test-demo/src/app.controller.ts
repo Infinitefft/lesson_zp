@@ -1,10 +1,14 @@
-import { Controller, Get, Post, Body } from '@nestjs/common';
+import { Controller, Get, Post, Body, Inject } from '@nestjs/common';
 import { AppService } from './app.service';
+import { DatabaseModule } from './database/database.module';
 
 @Controller()
 export class AppController {
   // service 实例
-  constructor(private readonly appService: AppService) {
+  constructor(
+    @Inject('PG_CONNECTION') private readonly db: any,
+    private readonly appService: AppService,
+  ) {
 
   }
   @Get('welcome')
@@ -29,5 +33,21 @@ export class AppController {
       }
     }
     return this.appService.handleLogin(username, password);
+  }
+
+  @Get('db-test')
+  async testConnection() {
+    try {
+      const res = await this.db.query('SELECT * from users');
+      return {
+        status: '连接成功',
+        data: res.rows,
+      }
+    } catch(error) {
+      return {
+        status: '连接失败',
+        error: error.message,
+      }
+    }
   }
 }
