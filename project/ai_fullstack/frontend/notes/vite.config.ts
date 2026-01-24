@@ -4,11 +4,18 @@ import tailwindcss from '@tailwindcss/vite'
 import path from 'path'  // node 的内置模块
 // node 需要单独添加类型声明文件
 
+import { 
+  viteMockServe
+} from 'vite-plugin-mock'
+
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
     react(),
     tailwindcss(),
+    viteMockServe({
+      mockPath: 'mock'
+    })
   ],
   "resolve": {
     alias: {
