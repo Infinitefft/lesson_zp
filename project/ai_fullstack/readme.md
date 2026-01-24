@@ -296,3 +296,28 @@ npx 是 Node.js 自带的工具，用于临时安装并**执行** npm 包中的�
 - 自定义loading 组件
 - 路由守卫
   - user store isLogin
+
+### BackToTop 组件
+- 通用组件
+- 自由状态 isVisible
+- onScroll 判断一个阈值，超过阈值显示按钮
+- scroll 事件频发触发，性能优化
+  - 节流 utils目录下 是一个工具函数
+- 组件卸载时 移出事件监听 防止内存泄露。
+
+### 幻灯片组件 slides
+- shadcn 提供了 Carousel、CarouselContent、CarouselItem
+  一组组件，层次结构
+- 自动播放的功能作为插件引入，shadcn 简单性能好，定制性更好
+  useRef  持久化的可变对象
+  plugins=[]
+- api 向外暴露 Carsoul 的各种功能
+  selectedIndex 私有状态
+  api onSelect 方法 改变
+- 指示点
+  循环输出
+  动态类名
+- css
+  - transition-all
+  - gradient 线性渐变，取代图片做背景
+  性能优化 图片做背景 http下载的开销，减少http并发数
