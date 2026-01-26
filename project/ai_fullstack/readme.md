@@ -399,3 +399,15 @@ findMany         ===         Select
 - 建数据库
 - prisma 命令行 + @prisma/client(ORM)
 - npx prisma init
+
+### schema 文件
+数据库是最重要的， schema 就是数据库的设计稿，设计文件保留下来
+用 model 模型类的概念 描述数据表
+@id  primary key
+@default(@increment())
+@db.VarChar(255)
+@unique
+
+### migrate 数据表的迁移
+- 方便
+- 留下日志
