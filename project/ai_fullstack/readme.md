@@ -365,3 +365,37 @@ npx 是 Node.js 自带的工具，用于临时安装并**执行** npm 包中的�
     - start, end, total, totalPage
     - slice
     - pagination
+
+## JWT　登录
+- http 无状态的
+Cookie Authorization token 身份令牌
+- 颁发令牌 token
+- JWT
+  pnpm i json(用户身份对象)web(形式)token(令牌)
+  用户名+密码 {id: 1, name: 'admin'} json 加密成一个token
+  请求时，再传过来 服务器端 decode 得到用户对象
+  - sign 方法 服务器 将用户对象，secret，过期时间 给前端颁发token
+  - decode 方法，解析请求头 authorization 服务器拿到用户对象
+
+## api 后端接口项目
+- nest new posts
+  高度模块化、依赖注入特新的企业级开发框架
+- 数据库
+
+### prisma ORM
+将数据库映射成对象
+Table -> 类
+row -> 实例
+props -> props
+psql/mysql sql 太专业了，prisma 翻译官
+后端 ->    prisma    ->   sql
+User(service class)   ===     User(table)
+create         ===         Insert
+findMany         ===         Select
+
+### ORM Object Relation Mapping 对象关系映射
+
+### Prisma 的初始化流程
+- 建数据库
+- prisma 命令行 + @prisma/client(ORM)
+- npx prisma init

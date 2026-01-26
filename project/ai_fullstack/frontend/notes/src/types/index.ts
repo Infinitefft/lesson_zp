@@ -16,3 +16,9 @@ export interface Post {
   thumbnail: string;  // 缩略图
   pics?: string[];
 }
+
+// dry 原则 dont repeat yourself
+export interface Credential {
+  name: string;
+  password: string;
+}
