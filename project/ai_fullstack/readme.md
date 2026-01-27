@@ -411,3 +411,16 @@ findMany         ===         Select
 ### migrate 数据表的迁移
 - 方便
 - 留下日志
+
+### seeds
+
+### DTO Date Transfer Object
+从前端 -> 后端 -> 控制器 -> service  transfer 过程
+- dot/post-query.dto.ts
+- dot/post-new.dto.ts
+- class-validator 验证器
+  将参数的校验 流程化，规范化
+- 全局配置一下
+
+### @prisma/client
+- 怎么给 service 提供 client 代替 db

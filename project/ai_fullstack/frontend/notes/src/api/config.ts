@@ -7,7 +7,7 @@ axios.defaults.baseURL = 'http://localhost:3000/api'
 axios.interceptors.request.use(config => {
   // console.log("|||||||", config);
   const token = useUserStore.getState().token;
-  console.log(token, "<><><><>")
+  // console.log(token, "<><><><>")
   if (token) {
     config.headers.Authorization = `Bearer ${token}`
   }
@@ -20,7 +20,7 @@ axios.interceptors.request.use(config => {
 // data 只是其中一项
 axios.interceptors.response.use(res => {
   // console.log('////[][][]');
-  console.log("|||||||", res);
+  // console.log("|||||||", res);
   if (res.status != 200) {
     console.log("出错了");
     return;
