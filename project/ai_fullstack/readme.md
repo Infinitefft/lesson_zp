@@ -424,3 +424,45 @@ findMany         ===         Select
 
 ### @prisma/client
 - 怎么给 service 提供 client 代替 db
+- 文章列表
+  - 背后有多条sql
+  count posts 用于分页  total
+  - 文章列表详情
+    title content ...
+    - 拿到每篇文章的id  tags
+    - likes
+- dto
+  - 用户提交(query?, body) 打理的标准
+  - mian.ts 启用中间价
+    约束多传的不要
+    少传的报错
+    transform 转换类型
+    class-validator 属性类型约束的装饰类
+    class-transfomer 类型转换
+    约束 query | body
+
+### prisma 流程
+- prisma 命令行、@prisma/client 两个 @6 版本
+- npx prisma init
+  prisma 文件夹 schema 文件
+  .env 描述psql 连接的字符串
+- schema 编写 Model （属性，类型，key，关系）
+- npx prisma migrate dev --init-user
+- npx prisma generate 生成 client 需要的内容
+- prisma module
+  - 和nest融合了
+  - prisma module  provider prisma service
+    @Global() 装饰一下 全局提供
+
+### 图片懒加载
+- img src http 请求 并发
+  图片用占位图片（小），优先去加载html，css，首屏的显示速度优先
+  - 视图窗口（viewport）之外的 不需要加载
+    onscroll 事件 节流 滚动哪里懒加载进入视窗的图片
+  - 首先实例化IntersectionObserver
+    Observer 观察者（设计模式）模式
+    Intersection 与 viewport 的交叉
+    entries 所有被观察的元素
+    isIntersecting  是否出现
+    dataset-src 交给图片
+    observer.unobserve 取消观察

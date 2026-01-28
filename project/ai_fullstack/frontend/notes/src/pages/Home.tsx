@@ -3,10 +3,20 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import SlideShow, {type SlideData} from '@/components/SlideShow';
 import useHomeStore from '@/store/home'
 import { useEffect } from 'react';
+import InfiniteScroll from '@/components/ui/InfiniteScroll';
+import Loading from '@/components/Loading';
+import PostItem from '@/components/PostItem';
+
 
 
 const Home = () => {
-  const { banners, posts, loadMore } = useHomeStore();
+  const { 
+    banners,
+    posts,
+    hasMore, 
+    loadMore, 
+    loading,
+  } = useHomeStore();
 
 
   useEffect(() => {
@@ -40,6 +50,23 @@ const Home = () => {
               </div>
             ))
           }
+        </div>
+        <div className="container mx-auto py-8">
+          <h1 className="text-2xl font-bold mb-6">文章列表</h1>
+          <InfiniteScroll 
+            hasMore={hasMore}
+            isLoading={loading}
+            onLoadMore={loadMore}
+          >
+            <ul>
+              {
+                posts.map((post) => (
+                  <PostItem key={post.id} post={post} />
+                ))
+              }
+            </ul>
+            {/* 业务组件 */}
+          </InfiniteScroll>
         </div>
       </div>
     </>
