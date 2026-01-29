@@ -37,7 +37,7 @@ export class PostsService {
           },
           tags: {
             select: {
-              Tag: {
+              tag: {
                 select: {
                   name: true
                 }
@@ -49,14 +49,38 @@ export class PostsService {
               likes: true,
               comments: true,
             }
+          },
+          files: {
+            where: {
+              mimetype: { startsWith: "image/" },
+            },
+            select: { filename: true }
           }
         }
       })
     ])
+
+    // 查询数据，再整备一下
+    const data = posts.map(post => ({
+      if: post.id,
+      title: post.title,
+      // 将content 进行截取
+      brief: post.content?post.content.substring(0, 100):'',
+      // publishedAt: post.createdAt || null,
+      user: {
+        id: post.user?.id,
+        name: post.user?.name,
+        avatar: `http://localhost:3000/uploads/avatar/resized/${post.user?.avatars[0].filename}-small.jpg`
+      },
+      tags: post.tags.map(tag => tag.tag.name),
+      totallikes: post._count.likes,
+      totalcomments: post._count.comments,
+      thumbnail: `http://localhost:3000/uploads/resized/${post.files[0].filename}-thumbnail.jpg` || "",
+    }))
     // const total = await this.prisma.post.count();
     // console.log(total, "**************");
     return {
-      items: posts,
+      items: data,
       total: total
     }
   }

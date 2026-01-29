@@ -9,7 +9,7 @@ export interface Post {
   title: string;
   brief: string;  // 简介
   publishedAt: string;  // 发布时间
-  totalLinkes?: number;
+  totalLikes?: number;
   totalComments?: number;
   user: User;
   tags: string[];

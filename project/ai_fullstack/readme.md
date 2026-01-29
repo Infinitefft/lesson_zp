@@ -466,3 +466,24 @@ findMany         ===         Select
     isIntersecting  是否出现
     dataset-src 交给图片
     observer.unobserve 取消观察
+
+### 静态服务器
+- service，提供数据，动态
+- 静态，html/css/js/img
+- 根目录下的uploads/
+- main.ts 启用静态资源服务器
+  区别于动态资源，不需要controller 提供路由
+  只需要取配置一下
+- app.useStaticAssets 启用静态资源服务器
+- path 的 join
+  process.cwd() uploads 拼起来
+
+### 接口数据格式调整
+- 依据前后端文档格式要求
+- prisma-client 查出数据之后，通过map 格式化输出
+- 后端对接口文档的尊重
+
+### 图片懒加载
+- 列表一定要做图片懒加载
+- react-lazy-load 提供了组件，背后 IntersectionObserver
+- 包着原来要显示的图片 ，loading="lazy"

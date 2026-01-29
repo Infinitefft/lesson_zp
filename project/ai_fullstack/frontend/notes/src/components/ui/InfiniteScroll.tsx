@@ -15,7 +15,7 @@ const InfiniteScroll:React.FC<InfiniteScrollProps> = ({
 }) => {
   return (
     <>
-      
+      {children}
     </>
   )
 }
