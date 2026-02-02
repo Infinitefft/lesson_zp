@@ -487,3 +487,31 @@ findMany         ===         Select
 - 列表一定要做图片懒加载
 - react-lazy-load 提供了组件，背后 IntersectionObserver
 - 包着原来要显示的图片 ，loading="lazy"
+
+### InfiniteScroll 组件
+- 通用组件
+  为列表带来分页无限加载能力
+- 抽象封装能力
+  可定制的列表作为children
+  在children 下面添加一个哨兵节点
+- 使用IntersectionObserver  threshold 0.0
+- loadMore loading hasMore store
+- 联动启动
+
+### 首页优化
+- 反复切换 首页，其他页面 重复加载
+- 路由的切换，单页应用 SPA  Single Page Application
+  React + React-Router
+  快 不需要白屏  等待
+  /    /detail/:id
+  服务器 后端路由  http请求  完整的html
+  前端负责路由，js 中拿出来组件，路由进行替换
+- 首页太重要了，用户频繁地在首页和其他页面切换
+  首页的不断写在挂载，重复渲染
+
+### KeepAlive
+- home 不能卸载， keep alive
+- react-activation
+  cache 缓存 home，界面和数据都保持
+  display:none  离开文档流
+  KeepAlive + AliveScope

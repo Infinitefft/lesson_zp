@@ -62,7 +62,7 @@ export class PostsService {
 
     // 查询数据，再整备一下
     const data = posts.map(post => ({
-      if: post.id,
+      id: post.id,
       title: post.title,
       // 将content 进行截取
       brief: post.content?post.content.substring(0, 100):'',

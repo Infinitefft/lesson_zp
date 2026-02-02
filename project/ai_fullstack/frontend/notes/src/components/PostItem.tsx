@@ -11,6 +11,7 @@ import LazyLoad from 'react-lazy-load';
 interface PostItemProps {
   post: Post;
 }
+
 const PostItem: React.FC<PostItemProps> = ({ post }) => {
   // console.log(post, '//////')
   const navigate = useNavigate();
@@ -18,7 +19,11 @@ const PostItem: React.FC<PostItemProps> = ({ post }) => {
     <div
       className="flex border-b border-border py-4 py-2"
       // 动态路由 暴露资源 restful url 资源具有描述性 
-      onClick={() => { navigate(`/post/${post.id}`) }}
+      onClick={() => {
+        // console.log('数据库传回来的完整对象:', post); 
+        // 重点看这里面哪个 key 才是那串唯一标识符
+        navigate(`/post/${post.id}`);
+      }}
     >
       <div className="flex-1 pr-4 space-y-2">
         <div className="flex items-center gap-2">

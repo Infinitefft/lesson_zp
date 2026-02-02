@@ -24,6 +24,7 @@
     "lucide-react": "^0.562.0",
     "mockjs": "^1.1.0",
     "react": "^19.2.0",
+    "react-activation": "^0.13.4",
     "react-dom": "^19.2.0",
     "react-lazy-load": "^4.0.1",
     "react-router-dom": "^7.12.0",
