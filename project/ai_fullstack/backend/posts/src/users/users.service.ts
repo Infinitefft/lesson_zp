@@ -4,6 +4,7 @@ import {
 } from '@nestjs/common'
 import { PrismaService } from '../prisma/prisma.service'
 import { CreateUserDto } from './dto/create-user.dto'
+import * as bcrypt from 'bcrypt';
 
 
 
@@ -21,8 +22,25 @@ export class UsersService {
       }
     });
     if (existingUser) {
+      // 抛出异常
+      // nest 企业级框架 捕获并返回给用户错误信息
+      // node：弱类型，单线程，出错可能灾难性
       throw new BadRequestException("用户名已存在");
     }
-    return createUserDto;
+    // 10：加密算法的强度
+    const hashedPassword = await bcrypt.hash(password, 10);
+    // console.log(hashedPassword, hashedPassword.length)
+    const user = await this.prisma.user.create({
+      data: {
+        name,
+        password: hashedPassword,
+      },
+      select: {
+        id: true,
+        name: true,
+      }
+    })
+
+    return user;
   }
 }

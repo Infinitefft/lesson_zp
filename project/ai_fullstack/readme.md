@@ -515,3 +515,29 @@ findMany         ===         Select
   cache 缓存 home，界面和数据都保持
   display:none  离开文档流
   KeepAlive + AliveScope
+
+### 登录功能
+- 注册
+  - password 单向加密
+    不能解密，防程序员，黑客，可以确保密码安全
+    bcrypt 单向哈希
+- 登录
+  cookie  在 JWT 之前的登录解决方案，小饼干 http 自动带上cookie，
+  cookie 比 localStorage 更小的本地存储，存储身份信息
+  JWT  Authorization 字段  请求拦截
+  轻量级，跨域 JSON（用户对象信息 不安全）Web Token（hash 令牌）
+  双向（加解密 sign/decode secret）
+  身份验证
+- Auth 鉴权模块
+
+### 错误处理异常模块
+- 后端，错误处理是核心模块。
+  4xx  400：BadRequest  401：UnAthorizated
+  5xx 服务器端错误
+- try {} catch() { ... }
+  catch 错误可以被善待
+- BadRequestException
+  nestjs 准备了各种异常
+  各种异常处理类，解决各种问题
+  - return
+  - 400|401|403|500 ... statusCode，message
