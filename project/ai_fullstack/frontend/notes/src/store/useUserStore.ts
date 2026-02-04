@@ -9,7 +9,8 @@ import type { Credential } from '@/types/index'
 
 
 interface UserStore {
-  token: string;
+  accessToken: string | null;
+  refreshToken: string | null;
   user: User | null;
   isLogin: boolean;
   login: (credentials: { name: string, password: string }) => Promise<void>;
@@ -19,23 +20,27 @@ interface UserStore {
 // 高阶函数 柯里化
 export const useUserStore = create<UserStore>() (
   persist((set) => ({  // state 对象
-    token: "",
+    accessToken: null,
+    refreshToken: null,
     user: null,
     isLogin: false,
     login: async ({name, password}) => {
       const res = await doLogin({name, password});
-      // console.log(res, '??????');
-      // const { token, user } = res.user;
+      console.log(res, '??????');
+      const { access_token, refresh_token, user } = res;
+      // console.log(access_token, refresh_token, user);
       set({
-        user: res.user,
-        token: res.token,
+        user: user,
+        accessToken: access_token,
+        refreshToken: refresh_token,
         isLogin: true,
       })
     }
   }), {
     name: 'user-store',
     partialize: (state) => ({
-      token: state.token,
+      accessToken: state.accessToken,
+      refreshToken: state.refreshToken,
       user: state.user,
       isLogin: state.isLogin,
     })

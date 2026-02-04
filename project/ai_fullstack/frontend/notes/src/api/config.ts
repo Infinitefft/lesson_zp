@@ -10,7 +10,7 @@ axios.defaults.baseURL = 'http://localhost:3000/api'
 // use：注册 / 安装一个拦截器
 axios.interceptors.request.use(config => {
   // console.log("|||||||", config);
-  const token = useUserStore.getState().token;
+  const token = useUserStore.getState().accessToken;
   // console.log(token, "<><><><>")
   if (token) {
     config.headers.Authorization = `Bearer ${token}`

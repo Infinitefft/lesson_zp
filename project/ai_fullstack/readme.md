@@ -529,6 +529,23 @@ findMany         ===         Select
   双向（加解密 sign/decode secret）
   身份验证
 - Auth 鉴权模块
+  - @nestjs/jwt 需要安装的，但是是nestjs 本身提供的jwt 身份验证模块
+    jwt 协议
+  - JWTService sign
+  - JWTModule Auth 模块里面import 它
+
+### JWT 双 token 机制
+- mockjs 使用了jsonwebtoken 单token sign/decoded
+- 单 token 容易被中间人截获，不安全，使用双 token 机制
+- access_token（短，分钟为单位）和 refresh_token（长，天为单位）
+  一样的具有token 验证的能力（JWTService.signAsync）
+  axios 请求拦截中 access_token ，会比较快地过期
+  会拿出refresh_token刷新  后端可以识别用户身份 再次生成一对token
+- 新的token 会覆盖旧的，继续使用access_token就可以了。
+- refresh_token 7天，需要重新登录
+- Promise.all 面试官问
+  举个例子 nest.js posts 列表查询，count 和 list Promise.all 并发查询
+  还有nest.js 双token 的并发生成 token 生成是需要性能和时间的
 
 ### 错误处理异常模块
 - 后端，错误处理是核心模块。
