@@ -558,3 +558,28 @@ findMany         ===         Select
   各种异常处理类，解决各种问题
   - return
   - 400|401|403|500 ... statusCode，message
+
+### 鉴权处理
+- 新增文章 点赞等  需要权限的操作，需要先登录
+- access_token, refresh_token
+  api 请求由axios 自动带上access_token，Authorization
+- backend post.controller createPost 方法
+  createPost 需要收到鉴权的保护  nestjs 提供了 guard 的概念
+  req  Authorization  access_token
+  拿到 user ? @nestjs/jwt verify?
+
+### nestjs useGard
+UseGards 是一个装饰器，用于在控制器或路由处理方法上应用守卫
+会在路由处理方法前，先执行Guard 函数，鉴权
+如果鉴权失败，抛出401，直接退出
+如果成功 用jwt verify 出来的对象帮我们添加到req 对象上
+路由处理方法里面就可以使用user 信息
+- AuthGuard('jwt') 由@nestjs/passport 直接提供
+- Unknown authentication strategy "jwt"
+  jwt 鉴权策略在哪？
+- jwt 双token 的流程
+  - 双token 生成， @nestjs/jwt
+  - 鉴权 @nestjs/guard useGuard
+  - 刷新 ？ refresh
+    post / posts 新增 token
+    userGuard 返回 401

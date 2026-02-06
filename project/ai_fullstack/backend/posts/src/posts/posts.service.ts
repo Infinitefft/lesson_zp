@@ -84,4 +84,18 @@ export class PostsService {
       total: total
     }
   }
+
+  async createPost(data: {
+    title: string;
+    content: string;
+    userId: string;
+  }) {
+    return this.prisma.post.create({
+      data: {
+        title: data.title,
+        content: data.content,
+        userId: Number(data.userId),
+      }
+    })
+  }
 }

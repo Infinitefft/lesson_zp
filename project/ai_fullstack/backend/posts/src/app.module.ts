@@ -5,6 +5,8 @@ import { PostsModule } from './posts/posts.module';
 import { PrismaModule } from './prisma/prisma.module'
 import { UserModule } from './users/users.module'
 import { AuthModule } from './auth/auth.module';
+import { JwtStrategy } from './auth/jwt.strategy';
+import { JwtAuthGuard } from './auth/guard/jwt-auth.guard';
 
 
 @Module({
@@ -13,6 +15,7 @@ import { AuthModule } from './auth/auth.module';
     UserModule, AuthModule
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, JwtStrategy, JwtAuthGuard],
+  exports: [JwtAuthGuard],
 })
 export class AppModule {}
