@@ -16,3 +16,11 @@ export const fetchPosts = async (page: number = 1, limit: number = 10) => {
     
   }
 }
+
+
+export const createPosts = async () => {
+  return axios.post('/posts', {
+    title: '1212121',
+    content: 'faefsdffs',
+  })
+}

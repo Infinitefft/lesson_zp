@@ -19,11 +19,6 @@ export default function BottomNav() {
       icon: Home
     },
     {
-      label: '聊天',
-      path: "/chat",
-      icon: MessageCircle
-    },
-    {
       label: '订单',
       path: "/order",
       icon: ListOrdered

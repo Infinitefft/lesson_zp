@@ -14,6 +14,7 @@ interface UserStore {
   user: User | null;
   isLogin: boolean;
   login: (credentials: { name: string, password: string }) => Promise<void>;
+  logout: () => void;
 }
 
 
@@ -34,6 +35,14 @@ export const useUserStore = create<UserStore>() (
         accessToken: access_token,
         refreshToken: refresh_token,
         isLogin: true,
+      })
+    },
+    logout: () => {
+      set({
+        user: null,
+        isLogin: false,
+        accessToken: null,
+        refreshToken: null,
       })
     }
   }), {

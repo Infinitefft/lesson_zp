@@ -70,12 +70,12 @@ export class PostsService {
       user: {
         id: post.user?.id,
         name: post.user?.name,
-        avatar: `http://localhost:3000/uploads/avatar/resized/${post.user?.avatars[0].filename}-small.jpg`
+        avatar: `http://localhost:3000/uploads/avatar/resized/${post.user?.avatars[0]?.filename}-small.jpg`
       },
       tags: post.tags.map(tag => tag.tag.name),
       totallikes: post._count.likes,
       totalcomments: post._count.comments,
-      thumbnail: `http://localhost:3000/uploads/resized/${post.files[0].filename}-thumbnail.jpg` || "",
+      thumbnail: `http://localhost:3000/uploads/resized/${post.files[0]?.filename}-thumbnail.jpg` || "",
     }))
     // const total = await this.prisma.post.count();
     // console.log(total, "**************");

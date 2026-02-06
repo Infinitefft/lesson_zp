@@ -583,3 +583,24 @@ UseGards 是一个装饰器，用于在控制器或路由处理方法上应用�
   - 刷新 ？ refresh
     post / posts 新增 token
     userGuard 返回 401
+
+### refresh token
+- axios 响应拦截，有成功处理函数，如果服务器端抛出异常，执行失败处理函数。
+  找到了refresh 入口
+
+### chatbot
+- 流式输出
+- llm 提的问 input
+  llm 函数（参数1 ...）百亿
+  llm 返回 output
+  智能
+  token 生成按token 来生成
+  token生成token  神经网络系统 AIGC tokens 的循环生成
+  流式
+
+- 前端用户体验
+  响应更快，打字机一样效果，像水流逐字输出
+
+- http 请求
+  Connection: Keep Alive
+  事件监听  SSE Server-Sent Events
