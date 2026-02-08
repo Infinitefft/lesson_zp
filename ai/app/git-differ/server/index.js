@@ -1,10 +1,12 @@
-import express from 'express';   // 引入后端框架
+import express, { response } from 'express';   // 引入后端框架
+import cors from 'cors';  // 引入跨域模板
 // langchain 支持ollama
-import { ChatOllama } from '@langhchain/ollama';
+import { ChatOllama } from '@langchain/ollama';
 // 提示词模板
 import { ChatPromptTemplate } from '@langchain/core/prompts'
 // 输出格式化模块
-import { StringOutputParse } from '@langchain/core/output_parsers'
+import { StringOutputParser } from '@langchain/core/output_parsers'
+
 
 
 const model = new ChatOllama({
@@ -15,6 +17,9 @@ const model = new ChatOllama({
 
 // web server http 协议  3000 端口伺服  路由
 const app = express();   // server app
+
+app.use(cors());
+// 跨域配置中间件
 
 // 使用 json 解析中间件服务
 app.use(express.json());
@@ -39,9 +44,30 @@ app.post('/chat', async (req, res) => {
     return res.status(400).json({
       error: "message 必填，必须是字符串"
     })
-    
   }
-  res.send(message);
+  // 容错
+  try { 
+    const prompt = ChatPromptTemplate.fromMessages([
+      ["system", "You are a helpful assistent."],
+      ["human", '{input}']
+    ])
+    const chain = prompt.pipe(model).pipe(new StringOutputParser());
+
+    console.log("正在调用大模型");
+    const result = await chain.invoke({
+      input: message,
+    })
+    res.json({
+      reply: result
+    })
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({
+      err: "调用大模型失败"
+    })
+  }
+
+  // res.send(message);
 })
 
 app.listen(3000, () => {

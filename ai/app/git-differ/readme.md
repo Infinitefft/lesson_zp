@@ -62,3 +62,20 @@
   - 401 Unauthorized 未授权
   - 500 Internal Server Error 服务器错误
   
+## 跨域
+有风险
+- 柬埔寨 跨域
+  www.baidu.com(用户安全)  ->  www.dy.com
+  com
+  http://(协议) www.baidu.com(域名): 5173(端口)
+  - 同源策略 直接放弃请求 CORS Cross Origin Resource Share
+  - 端口不一样 也会跨域 非常的严格
+  协议、域名、端口 一样
+  block 阻止请求
+  - 解决跨域  日常问题  办护照
+
+  - 前端发起跨域接口请求(端口 port)，需要数据
+  - 浏览器 用户小白 www.baidu.com  同源策略 block  阻止请求
+  - 后端 默认没有开启跨域的允许
+    如果允许呢？就好像给我们前端特批了签证一样，浏览器放行
+    .use(cors());
