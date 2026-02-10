@@ -3,6 +3,26 @@ import {
 } from '@nestjs/common';
 import { Message } from './dto/chat.dto';
 import { ChatDeepSeek } from '@langchain/deepseek'
+import { SystemMessage, HumanMessage, AIMessage } from '@langchain/core/messages';
+
+
+export function convertToLangChainMessages(messages: Message[])
+: (HumanMessage | AIMessage | SystemMessage)[] {
+  return messages.map(msg => {
+    switch(msg.role) {
+      case 'user':
+        return new HumanMessage(msg.content);
+      case 'assistant':
+        return new AIMessage(msg.content);
+      case 'system':
+        return new SystemMessage(msg.content);
+      default:
+        throw new Error(`Unsupported role: ${msg.role}`);
+    }
+  })
+}
+
+
 
 @Injectable()
 export class AIService {
@@ -20,7 +40,17 @@ export class AIService {
   }
 
   
-  async chat(messages: Message[], onToen: (token: string) => void) {
+  async chat(messages: Message[], onToken: (token: string) => void) {
     const langChainMessages = convertToLangChainMessages(messages);
+    // console.log(langChainMessages, '///[][][][]-----///');
+    const stream = await this.chatModel.stream(langChainMessages);
+    for await (const chunk of stream) {
+      const content = chunk.content as string;  // 断言
+      // console.log(content, "\\\////[][]---[][]");
+      // 用模块化，回调传递
+      if (content) {
+        onToken(content);
+      }
+    }
   }
 }

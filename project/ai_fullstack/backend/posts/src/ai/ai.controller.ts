@@ -27,12 +27,14 @@ export class AIController {
     res.setHeader('Connection', 'keep-alive');
 
     try {
-      await this.aiService.chat(chatDto.messages, (token) => {
+      await this.aiService.chat(chatDto.messages, (token: string) => {
         res.write(`0:${JSON.stringify(token)}\n`)
       })
+      res.end();
     } catch (err) {
       console.error(err)
       res.status(500).end();
-    } 
+    }
+  
   }
 }
