@@ -4,6 +4,7 @@
 // streaming：true
 // http chunked 数据块来传  不用res.end()
 // res.write(chunk) 
+// res.end text/plain;
 // SSE 服务器发送事件（Server-Sent Events）
 // text/event-stream 模式去发送token
 
@@ -55,30 +56,47 @@ export default [
           // console.log(process.env.VITE_DEEPSEEK_API_KEY, "[][][]{}{}{}{[][][]")
           if (!response.body) throw new Error("No response body");
           // SSE：二进制流  有个reader 对象 接根管子一样
-          const reader = response.body.getReader();
+          // LLM 输出和解析之间连上以根管子
+          // 用reader 对象不断从llm 输出中读取token
+          const reader = response.body.getReader();  // token
           // 用于将ArrayBuffer 或 TypedArray（如 Uint8Array） 转换为字符串
           const decoder = new TextDecoder();
+          // Uint8Array 字节数据  解码为可读的 UTF-8 字符串
           while(true) {
+            // llm 的这一次的生成 被读到了
+            // 事件，有新的token生成了
             const { done, value } = await reader.read(0);
             // console.log(done, value, '--------------');
             if (done) break;
+            // 解析出 token字符串  LLM 内部 数学向量
             const chunk = decoder.decode(value);
-            // console.log(chunk, "------")
-            const lines = chunk.split('\n');
-            for (let line of lines) {
+            // console.log(chunk, "------")  // JSON 字符串  结构
+            // chunk 有data: 这个前缀  
+            // delta：增量  又一次token 生成
+            const lines = chunk.split('\n');  // 拿到每一行有效数据
+            for (let line of lines) {  // 不需要下标，好理解，计数循环比较机械
               if (line.startsWith('data:') && line !== 'data: [DONE]') {
+                // data: [DONE] llm 生成的结束标志
+                // startWith: es6 的语法  优雅简单
+                // 还可以用老的 indexOf 方法：查找某个元素在数组或字符串中第一次出现的位置（索引）
                 try {
                   const data = JSON.parse(line.slice(6));
                   const content = data.choices[0]?.delta?.content || '';
+                  // ?.  增强代码的健壮性 
+                  // 安全地访问对象内部的属性，防止因为中间某个属性不存在（null 或 undefined）。
                   if (content) {
+                    // 发送给前端  SSE 核心
+                    // 向输出流不断地写入content
+                    // ai-sdk 要求的格式
                     res.write(`0:${JSON.stringify(content)}\n`);
                   }
                 } catch (err) {
-
+                  
                 }
               }
             }
           }
+          // 结束响应
           res.end();
         } catch (err) {
 

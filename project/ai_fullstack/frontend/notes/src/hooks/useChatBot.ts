@@ -8,7 +8,8 @@ import {
 
 export const useChatBot = () => {
   return useChat({
-    api: "/api/ai/chat",
+    // api: "/api/ai/chat",
+    api: "http://localhost:3000/api/ai/chat",
     onError: (err) => {
       console.log("Chat Error:", err);
     }
