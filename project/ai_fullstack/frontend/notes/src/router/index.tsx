@@ -22,7 +22,7 @@ const Order = lazy(() => import('@/pages/Order'));
 const Chat = lazy(() => import('@/pages/Chat'));
 const PostLayout = lazy(() => import('@/layouts/PostLayout'));
 const PostDetail = lazy(() => import('@/pages/post'));
-const Search = lazy(() => import('@/pages/Search'));
+const SearchPage = lazy(() => import('@/pages/Search'));
 
 export default function RouterConfig({children} : {children: React.ReactNode}) {
   return (
@@ -32,7 +32,7 @@ export default function RouterConfig({children} : {children: React.ReactNode}) {
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/chat" element={<Chat />} />
-            <Route path="/search" element={<Search />} />
+            <Route path="/search" element={<SearchPage />} />
             {/* Post 模块 */}
             <Route path="/post" element={<PostLayout />} > 
               <Route path=":id" element={<PostDetail />} />
