@@ -4,6 +4,7 @@ import {
 import { Message } from './dto/chat.dto';
 import { ChatDeepSeek } from '@langchain/deepseek'
 import { SystemMessage, HumanMessage, AIMessage } from '@langchain/core/messages';
+import { OpenAIEmbeddings } from '@langchain/openai'
 
 
 export function convertToLangChainMessages(messages: Message[])
@@ -26,6 +27,7 @@ export function convertToLangChainMessages(messages: Message[])
 
 @Injectable()
 export class AIService {
+  private embeddings: OpenAIEmbeddings;
   private chatModel: ChatDeepSeek;  // llm 成为service 一个私有属性
   constructor() {
     this.chatModel = new ChatDeepSeek({
@@ -36,6 +38,14 @@ export class AIService {
       model: "deepseek-chat",
       temperature: 0.7,
       streaming: true,
+    })
+
+    this.embeddings = new OpenAIEmbeddings({
+      configuration: {
+        apiKey: process.env.OPENAI_API_KEY,
+        baseURL: process.env.OPENAI_API_BASE_URL,
+      },
+      model: 'text-embedding-ada-002'
     })
   }
 
@@ -52,5 +62,11 @@ export class AIService {
         onToken(content);
       }
     }
+  }
+
+
+  async search(keyword: string) {
+    const vector = await this.embeddings.embedQuery(keyword);
+    console.log(vector, "[][]////()()###$%@%@%*****")
   }
 }
