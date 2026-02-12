@@ -18,6 +18,7 @@ import {
 } from '@/components/ui/drawer';
 import { Camera, Upload, Sparkle } from 'lucide-react';
 import Loading from '@/components/Loading';
+import { useNavigate } from 'react-router-dom';
 import {
   useState
 } from 'react';
@@ -26,6 +27,7 @@ import {
 
 
 export default function Mine() {
+  const navigate = useNavigate();
   const {
     user,
     logout,
@@ -113,6 +115,13 @@ export default function Mine() {
           </div>
           <div className="flex justify-between items-center py-2 border-b last:border-0">
             <span>AI git 工具</span>
+            <span className="text-gray-400 text-sm">&gt;</span>
+          </div>
+
+          <div className="flex justify-between items-center py-2 border-b last:border-0"
+            onClick={() => navigate('/rag')}
+          >
+            <span>RAG</span>
             <span className="text-gray-400 text-sm">&gt;</span>
           </div>
         </div>
