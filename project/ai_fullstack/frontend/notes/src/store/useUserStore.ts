@@ -2,10 +2,12 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { 
-  doLogin
+  doLogin,
+  getAiAvatar,
 } from '@/api/user';
 import type { User } from '@/types/index';
 import type { Credential } from '@/types/index'
+
 
 
 interface UserStore {
@@ -14,13 +16,14 @@ interface UserStore {
   user: User | null;
   isLogin: boolean;
   login: (credentials: { name: string, password: string }) => Promise<void>;
+  aiAvatar: () => Promise<void>;
   logout: () => void;
 }
 
 
 // 高阶函数 柯里化
-export const useUserStore = create<UserStore>() (
-  persist((set) => ({  // state 对象
+export  const useUserStore = create<UserStore>() (
+  persist((set, get) => ({  // state 对象
     accessToken: null,
     refreshToken: null,
     user: null,
@@ -35,6 +38,17 @@ export const useUserStore = create<UserStore>() (
         accessToken: access_token,
         refreshToken: refresh_token,
         isLogin: true,
+      })
+    },
+    aiAvatar: async () => {
+      // coze title desc 生成应用的 logo
+      const name = get().user?.name;
+      const avatar = await getAiAvatar(name);
+      set({
+        user: {
+          ...get().user,
+          avatar,
+        }
       })
     },
     logout: () => {

@@ -7,7 +7,7 @@ import {
 
 const PostDetail: React.FC = () => {
   const { id } = useParams();
-  console.log(id, "----------")
+  // console.log(id, "----------")
   return (
     <>
       PostDetail

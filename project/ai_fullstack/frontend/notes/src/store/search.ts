@@ -28,7 +28,7 @@ export const useSearchStore = create<SearchState>()(
         // url 传输中只支持 ASCII 字符，所以需要编码
         const res = await doSearch(encodeURIComponent(keyword));
         const data: [] = res.data || [];
-        console.log(data);
+        // console.log(data);
         set({
           suggestions: data,
         })

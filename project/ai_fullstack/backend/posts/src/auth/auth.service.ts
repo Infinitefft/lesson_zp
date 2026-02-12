@@ -32,7 +32,7 @@ export class AuthService {
     if(!user || !(await bcrypt.compare(password, user.password))) {
       throw new UnauthorizedException('用户名或密码错误')
     }
-    console.log(user);
+    // console.log(user);
     // hased password 比对？
 
     // 颁发token

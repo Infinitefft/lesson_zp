@@ -50,4 +50,9 @@ export class AIController {
     let decode = decodeURIComponent(keyword);
     return this.aiService.search(decode);
   }
+
+  @Get('avatar')
+  async avatar(@Query('name') name: string) {
+    return this.aiService.avatar(name);
+  }
 }
