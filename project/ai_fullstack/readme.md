@@ -664,3 +664,16 @@ Retrieve（检索） Augument（增强） Generation（生成）
 2.将检索到的内容（相似度）， 作为上下文，增强 prompt
 3.交给大模型生成
 - rag 界面，类似于chatbot ，上传文件
+
+
+### Git AI 工具
+- 提效
+  AI editor
+- 专业
+  新手和专家一样工作
+  git commit -m ''  要用本轮开发相关，能够表达功能的描述
+  css BEM  国际命令规范
+  大厂规范  Conventional Commits
+  有描述性
+  功能性
+  可读性
