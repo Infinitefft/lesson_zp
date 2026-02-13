@@ -65,4 +65,11 @@ export class AIController {
       answer,
     }
   }
+
+
+  @Post('git')
+  async git(@Body() { diff }: { diff: string }) {
+    // console.log(diff);
+    return this.aiService.git(diff);
+  }
 }

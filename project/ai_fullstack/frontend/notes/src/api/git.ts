@@ -1,0 +1,8 @@
+import axios from '@/api/config'
+
+
+export const fetchCommit = async (diff: string) => {
+  const res = await axios.post('/ai/git', { diff })
+  // console.log(res);
+  return res.result;
+}

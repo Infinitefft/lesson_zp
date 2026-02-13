@@ -673,7 +673,11 @@ Retrieve（检索） Augument（增强） Generation（生成）
   新手和专家一样工作
   git commit -m ''  要用本轮开发相关，能够表达功能的描述
   css BEM  国际命令规范
-  大厂规范  Conventional Commits
+  大厂规范  Conventional(约定) Commits(Conventional Commits 是一种写 commit 信息的规范，简单说就是让每次 Git 提交的消息格式统一，比如用 feat、fix、docs 这些前缀开头，后面跟上具体干了啥。这样不仅能让人一眼看懂改了什么，还能自动生成 changelog、自动打版本号，对团队协作和发布特别有帮助。)
   有描述性
   功能性
   可读性
+- 使用流程
+  - git diff 拿到结果
+  - prompt commit
+  - git commit -m ''
