@@ -41,3 +41,12 @@ AI Agent 框架 提供了 memory tool rag
 后端功底（node） NestJS
 
 AI Agent 全栈开发
+
+
+## LLM With Tools
+
+- llm 选择
+  qwen-coder
+- tools
+  [read, write, exec]
+- pnpm i @langchain/openai 适配了常见模型
