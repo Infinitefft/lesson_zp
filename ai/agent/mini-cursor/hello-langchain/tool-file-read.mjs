@@ -36,7 +36,7 @@ const readFileTool = tool(
     return content;
   },
   {
-    name: "rad_file",
+    name: "read_file",
     description: `用此工具来读取文件内容，当用户需要读取文件、查看代码时、分析文件内容时，
     调用此工具，输入文件路径（可以是相对路径或者绝对路径）`,
     schema: z.object({path: z.string().describe("要读取的文件路径")})
