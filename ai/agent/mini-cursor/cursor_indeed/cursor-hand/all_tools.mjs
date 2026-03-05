@@ -66,8 +66,8 @@ const executeCommanTool = tool(
       const [cmd, ...args] = command.split(' ');
       const child = spawn(cmd, args, {
         cwd,
-        stdoi: 'inherit',
-        shell: true``
+        stdio: 'inherit',
+        shell: true
       })
       let errorMsg = '';
       child.on('error', (error) => {
@@ -76,8 +76,8 @@ const executeCommanTool = tool(
       child.on('close', (code) => {
         if (code === 0) {
           // 成功退出
-          console.log('命令执行成功，子进程退出');
-          const cwdInfo = workingDirecroty ?
+          console.log('[工具调用] execute_command("${command}"") 命令执行成功，子进程退出');
+          const cwdInfo = workingDirectory ?
           `\n\n重要提示：命令在目录"${workingDirectory}"中执行成功。
           如果需要在这个项目目录中继续执行命令，请使用 workingDirectory
           "${workingDirectory}" 参数，不要使用 cd 命令`
@@ -101,6 +101,28 @@ const executeCommanTool = tool(
       command: z.string().describe('要执行的命令'),
       // optional: 可选参数
       workingDirectory: z.string().optional().describe('指定工作目录，默认当前目录')
+    })
+  }
+)
+
+// 列出目录工具
+const listDirectoryTool = tool(
+  async ({directoryPath}) => {
+    try {
+      // 读取目录内容
+      const files = await fs.readdir(directoryPath);
+      console.log(`[工具调用] list_directory("${directoryPath}") 成功列出 ${files.length} 个文件`);
+      return `目录内容：\n ${files.map(f => `- ${f}`).join('\n')}`;
+    } catch (error) {
+      console.log(`工具调用 list_directory("${directoryPath}") 失败：${error.message}`);
+      return `列出目录失败：${error.message}`;
+    }
+  },
+  {
+    name: 'list_directory',
+    description: "列出指定目录的所有文件和文件夹",
+    schema: z.object({
+      directoryPath: z.string().describe('要列出的目录路径'),
     })
   }
 )
