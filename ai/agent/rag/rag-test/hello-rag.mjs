@@ -117,15 +117,15 @@ for (const question of questions) {
 
   // 先将question 转换为向量
   // 再通过向量搜索，cosine 找到最相似的文档
-  const retrieveDocs = await retriever.invoke(question);
-  console.log(retrieveDocs);
+  const retrievedDocs = await retriever.invoke(question);
+  console.log(retrievedDocs);
 
   const storeResult = await vectorStore.similaritySearchWithScore(question, 3);
   console.log(storeResult);
   console.log(`\n [检索到文档及相似度评分]`);
-  retrieveDocs.forEach((doc, i) => {
+  retrievedDocs.forEach((doc, i) => {
     const scoreResult = storeResult.find(([scoreDoc]) => {
-      scoreDoc.pageContent === doc.pageContent;
+      return scoreDoc.pageContent === doc.pageContent;
     });
     const score = scoreResult ? scoreResult[1] : null;
     const similarity = score ? (1 - score).toFixed(2) : "N/A";
@@ -133,4 +133,28 @@ for (const question of questions) {
     console.log(`文档内容：${doc.pageContent}`);
     console.log(`文档元数据：${JSON.stringify(doc.metadata)}`);
   })
+
+  const context = retrievedDocs.map((doc, i) => 
+    `[片段${i+1}]\n ${doc.pageContent}`)
+  .join("\n\n---\n\n");
+
+  const prompt = `
+    你是一个讲友情故事的老师。
+    基于以下故事片段回答问题，用温暖生动的语言。
+    如果故事中没有提及，就说“这个故事里没有提到这个细节”。
+
+    故事片段：
+    ${context}
+
+    问题是：
+    ${question}
+
+    老师的回答：
+
+  `;
+  
+  console.log(`\n [AI 回答]`);
+  const response = await model.invoke(prompt);
+  console.log(response.content);
+  console.log("\n");
 }
