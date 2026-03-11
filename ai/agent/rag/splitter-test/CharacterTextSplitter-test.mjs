@@ -24,7 +24,7 @@ const logDocument = new Document({
 })
 
 const logSplitter = new RecursiveCharacterTextSplitter({
-  separator: ['\n', "。", '，'],
+  separators: ['\n', "。", '，'],
   chunkSize: 200,
   chunkOverlap: 20,
 })

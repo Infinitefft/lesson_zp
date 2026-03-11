@@ -72,3 +72,49 @@
   服务器会给 301/302
   Location: https://time.geekbang.org
   https://  浏览器强制
+
+- DNS 深入
+  - 浏览器 DNS 缓存
+  越快越好
+    chrome://net-internals/#dns
+  ip 数组
+  分布式 **服务器集群**
+  返回的IP地址是  ngnix代理服务器IP地址
+  背后反向代理 有成百上千台服务器 
+  负载均衡
+  代理服务器背后轮询 服务器的负载怎么样？
+
+  地域特性的机房
+  离你最近的地方安排服务器集群
+- 本地操作系统 DNS 缓存
+  host 文件
+  有用的系统配置文件
+  本地 域名 和IP 指向的配置文件
+  douyin.com
+  抖音的开发者 本地有着抖音官网的website 代码，本地测试带域名是什么效果
+  localhost  douyin.com
+  cookie，token
+  notepad "C:\Windows\System32\drivers\etc\hosts"
+  - localhost 等一些特殊域名，不需要解析
+  127.0.0.1 www.baidu.com
+
+- 200 + Content-Type text/html
+  下载内容
+  - 开始传输 transport
+    - 建立传输通道 三次握手
+  - OSI 七层协议
+    http 是应用层协议
+    - 物理层  0 和 1 物理介质
+    - 数据链路层  mac 地址 + 数据   mac（上网设备的唯一ID）
+    - 网络层 IP 地址 + mac 地址 + 数据
+    - 传输层 规则
+      UDP 数据报协议  视频，音频，直播
+      快 
+      有效的传输
+        - 数据包 大小上限的
+        - 一个文件会分成 好多个数据包，分批次，分通道并发传输
+        - 数据包会丢失  重传 TCP/IP
+        - 数据包会乱序  重排序
+
+        TCP(序号...) + IP 地址 + mac 地址 + 数据
+- 三次握手
