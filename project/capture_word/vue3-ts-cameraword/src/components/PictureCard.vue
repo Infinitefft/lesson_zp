@@ -26,7 +26,7 @@ const updateImageData = async (e: Event): Promise<any> => {
   return new Promise((resolve, reject) => {
     // 多模态需要的 base64
     const reader = new FileReader();
-    reader.readAsDataURL(file);
+    reader.readAsDataURL(file);  // 将读取到的二进制文件（File 对象）转化为一个 Base64 编码的字符串。
     reader.onload = () => {
       const data = reader.result as string;
       imgPreview.value = data;
@@ -37,6 +37,12 @@ const updateImageData = async (e: Event): Promise<any> => {
       reject(error);
     }
   })
+}
+
+
+const playAudio = () => {
+  const audio = new Audio(props.audio);
+  audio.play();
 }
 
 </script>
@@ -52,7 +58,7 @@ const updateImageData = async (e: Event): Promise<any> => {
     <div class="word">
       {{ props.word }}
     </div>
-    <div class="playAudio" v-if="audio">
+    <div class="playAudio" v-if="audio" @click="playAudio">
       <img :src="voiceIcon" alt="play" width="20px">
     </div>
   </div>

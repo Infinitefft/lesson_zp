@@ -68,3 +68,19 @@ moonshot-v1-8k-vision-preview
   input[type="file"] 比较难控制样式
   display: none;  for id 来关联控制样式
   
+- Prompt 设计
+  - AIGC 产品里 Prompt 设计是比较核心的
+  - 清晰的指令
+    1个单词，A1 ~ A2 级别
+  - outputParser 输出格式JSON，业务的持续执行
+  - 产品的设计 对齐
+  - 多模态模型的接口标准
+  content 数组 图片，
+  base64格式：字符编码（html5）Base64 是一种基于 64 个可打印 ASCII 字符，将 8 位（8-bit）字节序列（二进制数据）编码为文本字符串的表示方法。它的设计初衷是为了在那些只允许传输 7 位 ASCII 字符的旧系统中（比如 SMTP 电子邮件系统），能够安全地传输 8 位二进制数据（如图片、可执行文件），防止数据在传输过程中因为特殊控制字符（如换行符、终止符）被误截断或篡改。
+
+- 文件上传体验
+  - type="file" input + accept
+  - 上传慢慢长夜，即时显示图片
+    - FileReader js 读取本地文件、调用摄像头
+    - readDataAsURL(file)
+    - onload base64
