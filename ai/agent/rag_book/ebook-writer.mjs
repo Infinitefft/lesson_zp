@@ -26,6 +26,7 @@ import {
 const COLLECTION_NAME = "ebook";
 const VECTION_DIM = 1024;
 const CHUNK_SIZE = 500;
+const CHUNK_OVERLAP = 50;
 const EPUB_FILE = './天龙八部.epub';
 
 const ADDRESS = process.env.MILVUS_ADDRESS;
@@ -133,7 +134,10 @@ async function loadAndProcessEPubStreaming(bookId) {
       }
       console.log('生成向量并插入中...');
       const insertedCount = await insertChunksBatch(chunks, bookId, chapterIndex + 1);
+      totalInserted += insertedCount;
     }
+    console.log(`累计插入 ${totalInserted} 个片段`);
+    return totalInserted;
   } catch (err) {
     console.error('加载 EPUB 文件失败', err.message);
     throw err;
@@ -152,7 +156,7 @@ async function insertChunksBatch(chunks, bookId, chapterIndex) {
       chunks.map(async (chunks, chunkIndex) => {
         const vector = await getEmbedding(chunks);
         return {
-          id: `${bookId}_${chapterNum}_${chunkIndex}`,
+          id: `${bookId}_${chapterIndex}_${chunkIndex}`,
           book_id: bookId,
           book_name: BOOK_NAME,
           chapter_num: chapterIndex,
@@ -168,7 +172,8 @@ async function insertChunksBatch(chunks, bookId, chapterIndex) {
     })
     return Number(insertResult.insert_cnt) || 0;
   } catch (err) {
-    
+    console.error('插入数据失败', err.message);
+    throw err;
   }
 }
 

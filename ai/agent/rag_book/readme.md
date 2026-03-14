@@ -20,4 +20,15 @@
     schema
   - 创建索引
   - 加载集合 loadCollection
-  
+
+## MVP
+- Vibe Coding
+  - 代码平权
+  - idear 设计师等
+  Minimal Value Product 最小可执行产品
+  cursor/claude code 编程 Agent MVP
+  产品原型是产品经理设计出来的原型
+- 正式的商业级别开发
+  程序员 继续vibe coding
+- 语义搜索和文本匹配
+  - 文本匹配 低级搜索  模糊查询 like %query%
