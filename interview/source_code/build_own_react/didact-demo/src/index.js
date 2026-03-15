@@ -7,7 +7,7 @@ function createElement(type, props, ...children) {
     props: {
       ...props,
       children: children.map(child => 
-        typeof child === 'object' 
+        typeof child === 'object'   // child 是对象（已经是虚拟 DOM）
         ? child  // 虚拟DOM 对象 element
         : createTextElement(child)  // 退出条件 文本节点
       )
@@ -16,6 +16,7 @@ function createElement(type, props, ...children) {
 }
 
 
+// 创建文本节点
 function createTextElement(text) {
   return {
     type: "TEXT_ELEMENT",
@@ -27,19 +28,29 @@ function createTextElement(text) {
 }
 
 function render(element, container) {
+  // 递的过程创建
+
   // console.log(element, container);
   const dom = element.type === 'TEXT_ELEMENT'
     ? document.createTextNode('')
     : document.createElement(element.type);
 
-  // 过滤 children 属性
+  // createElement返回的props定义了children，所以要过滤掉 children 属性
   const isProperty = key => key !== 'children';
-  Object.keys(element.props)
+  Object.keys(element.props)  // Object.keys()：遍历这个对象，拿到所有 key
   .filter(isProperty).forEach(name => {
     // console.log(name, '()()()()');
     dom[name] = element.props[name];
+    // dom[name] = element.props[name];
+    //     ^^^^                  ^^^^
+    //     key                 取 value
+
+    // dom['className'] = 'box';      // dom.className = 'box'
+    // dom['style'] = 'color:red';    // dom.style = 'color:red'
   })
   element.props.children.forEach(child => render(child, dom));
+
+  // 归的过程挂载
   container.appendChild(dom);
 }
 
