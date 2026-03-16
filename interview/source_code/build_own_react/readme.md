@@ -83,7 +83,7 @@ V8 JS 引擎 和 渲染引擎（进程内部），多进程的通信（网络进
   - 消息机制
   - Event Loop
     第一个宏任务 script
-    同步代码全部执行完，碰到异步任务就放入宏任务（setTimeout... 队列，每次只会取一个宏任务执行）或微任务队列（Promise 先进先出 一次清空所有微任务）
+    同步代码全部执行完，碰到异步任务就放入宏任务（setTimeout... 队列，每次只会取一个宏任务执行）或微任务队列（Promise 先进先出 一次清空所有微任）务
 
 ## 程序运行模型
 - 主（单）线程模型
@@ -106,10 +106,10 @@ V8 JS 引擎 和 渲染引擎（进程内部），多进程的通信（网络进
   //主线程(Main Thread)
   void MainThread(){
     for(;;){
-      int first_num = GetInput()；
-      int second_num = GetInput()；
+      int first_num = GetInput();
+      int second_num = GetInput();
       result_num = first_num + second_num;
-      print("最终计算的值为:%d",result_num)；
+      print("最终计算的值为:%d",result_num);
     }
   }
   ```
