@@ -10,7 +10,7 @@ const p = new Promise((resolve, reject) => {
     console.log(3);   // 同步，立即执行
     // 立即执行的执行函数 executor
     fs.readFile('./b.txt', function(err, data) {
-        // console.log(err, '我嘞个雷');
+        console.log(err, '我嘞个雷');
         if (err) {
             reject(err);
             return;
@@ -19,10 +19,11 @@ const p = new Promise((resolve, reject) => {
         // 值 结果
         resolve(data.toString());     // promise 被解决了 兑现
     });
+    console.log(4);
 })
 p.then((data) => {
     console.log(data, '//////')
-    // console.log(4);
+    console.log(5);
 }).catch((err) => {
     console.log(err, '读取文件失败');
 })
