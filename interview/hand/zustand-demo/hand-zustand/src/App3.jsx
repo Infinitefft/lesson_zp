@@ -1,6 +1,6 @@
 import {
   createStore,
-} from './zustand';
+} from './zustand3';
 
 export default function App() {
   const store = createStore();

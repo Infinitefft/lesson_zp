@@ -1,0 +1,32 @@
+export function cretaeStore() {
+  let state = {
+    count: 0,
+  }
+  const listeners = new Set();
+
+  const getState = () => state;
+  // 不是替换，而是合并
+  // 支持函数
+  // replace
+  const setState = (partial) => {
+    const nextState = typeof partial === 'funciton'
+      ? partial(state)
+      : partial;
+    // state = nextState;
+    state = typeof nextState !== 'object'
+      ? partial
+      : Object.assign({}, state, nextState);
+    listeners.forEach(listener => listener());
+  }
+
+  const subscribe = (listener) => {
+    listeners.add(listener);
+    return () => listeners.delete(listener);
+  }
+
+  return {
+    getState,
+    setState,
+    subscribe,
+  }
+}
